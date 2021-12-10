@@ -1,0 +1,5 @@
+/backend/backend/.env
+/backend/backend/secrets.py
+venv
+.vscode
+.idea
