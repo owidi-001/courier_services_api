@@ -1,29 +1,48 @@
 from django import forms
 from .models import User
 from django.core.exceptions import ValidationError
-from validators.form_validators import phone_number_validator
+from validators.form_validators import phone_number_validator, national_id_num_validator, email_validator
 
 
 class UserCreationForm(forms.ModelForm):
+    email = forms.EmailField(max_length=13, help_text="Email is required")
     phone_number = forms.CharField(
-        max_length=13, help_text="This field is required")
-    first_name = forms.CharField(
-        max_length=150, help_text="This field is required")
-    last_name = forms.CharField(
-        max_length=150, help_text="This field is required")
+        max_length=13, help_text="Phone number is required")
+    national_id = forms.CharField(
+        max_length=150, help_text="National id is required")
+    name = forms.CharField(
+        max_length=150, help_text="Name is required")
 
     class Meta:
         model = User
-        fields = ["email", "password", "first_name", "last_name"]
+        fields = ["email", "password", "name", "national_id"]
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if not email:
+            raise ValidationError("Please provide your email address")
+        if not email_validator(email):
+            raise ValidationError(
+                "please provide a valid Email address")
+        return email
 
     def clean_phone_number(self):
         phone_no = self.cleaned_data.get("phone_number")
         if not phone_no:
-            raise ValidationError("please provide phone number")
+            raise ValidationError("please provide your phone number")
         if not phone_number_validator(phone_no):
             raise ValidationError(
                 "please provide valid phone number eg +254712345678")
         return phone_no
+
+    def clean_national_id(self):
+        national_id = self.cleaned_data.get("national_id")
+        if not national_id:
+            raise ValidationError("please provide your national id number")
+        if not national_id_num_validator(national_id):
+            raise ValidationError(
+                "please provide a valid national id number")
+        return national_id
 
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
@@ -55,7 +74,3 @@ class AddressUpdateForm(forms.Form):
     zip_code = forms.CharField(max_length=50)
     street = forms.CharField(max_length=100)
     city = forms.CharField(max_length=50)
-
-
-
-

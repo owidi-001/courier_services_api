@@ -18,12 +18,11 @@ from .serializers import *
 from users.data import SUPPORT_CONTACT
 from users.forms import UserLoginForm, UserProfileUpdateForm, UserCreationForm, AddressUpdateForm
 from users.token_generator import password_reset_token
-from users.models import Customer, UserAddress, City, Street, Address, User, PasswordResetToken, Fcm
+from users.models import Customer, UserAddress, City, Street, Address, User, PasswordResetToken
 
-from shipment.app_notifications import android_message
 from shipment.models import Shipment, CustomerBooking, Feedback
 
-from validators.form_validators import phone_number_validator
+from validators.form_validators import phone_number_validator,email_validator
 
 '''
 contains documentation schema
@@ -57,6 +56,7 @@ class RegisterCustomer(APIView):
         form = UserCreationForm(request.data)
         if form.is_valid():
             phone_number = form.cleaned_data["phone_number"]
+            email = form.cleaned_data["email"]
             if phone_number_validator(phone_number):
                 user = form.save()
                 customer = Customer(user=user, phone_number=phone_number)
@@ -71,17 +71,6 @@ class RegisterCustomer(APIView):
                 message = render_to_string("registration_email.html", {
                     "password": password, "email": email_to})
                 EmailThead([email_to], message).start()
-                # add fcm  device token- for firebase messaging
-                if request.data.get("registration_id"):
-                    try:
-                        fcm_obj = Fcm(
-                            user=user, fcm_token=request.data.get("registration_id"))
-                        fcm_obj.save()
-                        # send push notification
-                        android_message(fcm_obj.fcm_token, "Registration",
-                                        "Thank you for registering with us")
-                    except:
-                        password
 
                 return Response(data, status=200)
             else:
@@ -105,10 +94,6 @@ class UserLogin(APIView):
                 token = Token.objects.get(user=user).key
                 data = UserSerializer(user).data
                 data["token"] = token
-                if request.data.get("registration_id"):
-                    fcm_obj, _ = Fcm.objects.get_or_create(user=user)
-                    fcm_obj.fcm_token = request.data.get("registration_id")
-                    fcm_obj.save()
                 return Response(data, status=200)
             return Response({"errors": ["please provide valid credentials"]},
                             status=400)
@@ -221,12 +206,7 @@ class CustomerBookingView(APIView):
     #         message = f'''{request.user} has booked a trip from
     #                      {trip.route.origin} to {trip.route.destination}'''
     #         EmailThead(["xxxyyyzzz@gmail.com"], message)
-    #         try:
-    #             token = Fcm.objects.get(user=request.user).fcm_token
-    #             android_message(token, "Booking Status",
-    #                             "Your booking has been confirmed")
-    #         except:
-    #             pass
+
     #         data = BookingSerializer(booking).data
     #         return Response(data, status=200)
     #     return Response(form.errors, status=400)
@@ -239,12 +219,7 @@ class CustomerBookingView(APIView):
         customer_booking = get_object_or_404(CustomerBooking, id=book_id)
         customer_booking.status = "C"
         customer_booking.save()
-        try:
-            token = Fcm.objects.get(user=request.user).fcm_token
-            android_message(token, "Booking Status",
-                            "Your booking has been cancelled")
-        except:
-            pass
+
         return Response(BookingSerializer(customer_booking).data)
 
 

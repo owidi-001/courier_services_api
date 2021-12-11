@@ -122,8 +122,3 @@ class PasswordResetToken(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     short_token = models.IntegerField(null=True)
     reset_token = models.CharField(max_length=100)
-
-
-class Fcm(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    fcm_token = models.CharField(max_length=200)

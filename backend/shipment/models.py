@@ -3,8 +3,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from .app_notifications import send_multicast
-from users.models import Customer, City, Driver, EmailThead, User, Fcm
+# from .app_notifications import send_multicast
+from users.models import Customer, City, Driver, EmailThead, User
 
 
 class Vehicle(models.Model):
@@ -74,15 +74,12 @@ def send_user_notification(sender=None, instance=None, created=False, **kwargs):
         if instance.status == "A":
             clients = CustomerBooking.objects.filter(
                 trip=instance.shipment, status="A")
-            tokens = [token.fcm_token for token in Fcm.objects.filter(
-                user__in=[item.customer.user.id for item in clients])]
+
             # push notification
             message = "The cargo arrived at their destination, you will receive a confirmation call."
+            # email notification
             EmailThead([item.customer.email for item in clients] +
                        ["xxxyyyzzz@gmail.com"], message)
-            send_multicast(tokens, "Shipment status update",
-                           message)
-            # email notification
 
     except:
         pass
