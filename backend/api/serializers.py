@@ -7,7 +7,7 @@ from shipment.models import *
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "first_name", "email", "last_name"]
+        fields = ["national_id", "phone_number", "first_name", "last_name", "email"]
 
 
 class CitySerializer(serializers.ModelSerializer):

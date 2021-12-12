@@ -5,17 +5,15 @@ from validators.form_validators import phone_number_validator, national_id_num_v
 
 
 class UserCreationForm(forms.ModelForm):
-    email = forms.EmailField(max_length=13, help_text="Email is required")
+    email = forms.EmailField(help_text="Email is required")
     phone_number = forms.CharField(
         max_length=13, help_text="Phone number is required")
     national_id = forms.CharField(
         max_length=150, help_text="National id is required")
-    name = forms.CharField(
-        max_length=150, help_text="Name is required")
 
     class Meta:
         model = User
-        fields = ["email", "password", "name", "national_id"]
+        fields = ["phone_number", "email", "national_id", "password"]
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
@@ -68,6 +66,15 @@ class UserProfileUpdateForm(forms.Form):
             raise ValidationError(
                 "please provide valid phone number eg +254712345678")
         return phone_no
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if not email:
+            raise ValidationError("Please provide your email address")
+        if not email_validator(email):
+            raise ValidationError(
+                "please provide a valid Email address")
+        return email
 
 
 class AddressUpdateForm(forms.Form):

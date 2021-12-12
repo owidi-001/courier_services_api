@@ -22,7 +22,6 @@ from users.models import Customer, UserAddress, City, Street, Address, User, Pas
 
 from shipment.models import Shipment, CustomerBooking, Feedback
 
-from validators.form_validators import phone_number_validator,email_validator
 
 '''
 contains documentation schema
@@ -46,37 +45,27 @@ class EmailThead(Thread):
                   fail_silently=True, html_message=self.message)
 
 
+# Customer registration
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterCustomer(APIView):
-    """
-    register Customer
-    """
 
     def post(self, request):
         form = UserCreationForm(request.data)
         if form.is_valid():
-            phone_number = form.cleaned_data["phone_number"]
-            email = form.cleaned_data["email"]
-            if phone_number_validator(phone_number):
-                user = form.save()
-                customer = Customer(user=user, phone_number=phone_number)
-                customer.save()
-                data = UserSerializer(user).data
-                # create auth token
-                token = Token.objects.get(user=user).key
-                data["token"] = token
-                data["phone_number"] = phone_number
-                email_to = form.cleaned_data.get("email")
-                password = form.cleaned_data["password"]
-                message = render_to_string("registration_email.html", {
+            user = form.save()
+            data = UserSerializer(user).data
+            # create auth token
+            token = Token.objects.get(user=user).key
+            data["token"] = token
+            email_to = form.cleaned_data.get("email")
+            password = form.cleaned_data["password"]
+            message = render_to_string("registration_email.html", {
                     "password": password, "email": email_to})
-                EmailThead([email_to], message).start()
+            EmailThead([email_to], message).start()
 
-                return Response(data, status=200)
-            else:
-                form.add_error(
-                    "phone_number", "Please provide a valid phone number eg +254712345678")
-        return Response(form.errors, status=400)
+            return Response(data, status=200)
+        else:
+            return Response(form.errors, status=400)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

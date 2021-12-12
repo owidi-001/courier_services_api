@@ -3,17 +3,16 @@ from .models import *
 
 
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ["user", "phone_number", "dl_number"]
+    list_display = ["user", "dl_number"]
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "phone_number"]
+    list_display = ["id", "user"]
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ["id", "first_name", "last_name",
-                    "email", "date_joined", "is_staff"]
-    search_fields = ["first_name", "last_name", "email"]
+    list_display = ["id", "email", "date_joined", "is_staff"]
+    search_fields = ["national_id", "email"]
 
 
 class AddressAdmin(admin.ModelAdmin):

@@ -32,8 +32,13 @@ class EmailThead(Thread):
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    national_id = models.CharField(max_length=8, null=False, blank=False, unique=True)
+    phone_number = models.CharField(max_length=13, null=False, blank=False, unique=True)
+
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name"]
+    REQUIRED_FIELDS = ["first_name", "last_name", "national_id", "phone_number"]
     objects = UserManager()
 
     def get_full_name(self):
@@ -43,11 +48,7 @@ class User(AbstractUser):
         return f"{self.email}"
 
 
-'''
-generate authentication  token after a user has been created and send him/her an email
-'''
-
-
+# generate authentication  token after a user has been created and send him/her an email
 @receiver(post_save, sender=User)
 def create_auth_token(sender=None, instance=None, created=False, **kwargs):
     if created:
@@ -58,10 +59,12 @@ def create_auth_token(sender=None, instance=None, created=False, **kwargs):
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_image = models.ImageField(null=True, blank=True, upload_to=upload)
-    phone_number = models.CharField(max_length=13)
 
     def __str__(self) -> str:
-        return f"{self.user.first_name} {self.user.last_name}"
+        return f"{self.user.email}"
+
+    def get_name(self):
+        return f"{self.user.name}"
 
 
 class City(models.Model):
@@ -107,15 +110,13 @@ class UserAddress(models.Model):
 class Driver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_image = models.ImageField(null=True, blank=True, upload_to=upload)
-    phone_number = models.CharField(max_length=13)
     gender = models.CharField(max_length=1, choices=(
         ("M", "Male"), ("F", "Female")
     ))
     dl_number = models.CharField(max_length=10, unique=True)  # license No
-    national_id_number = models.CharField(max_length=8, unique=True)
 
     def __str__(self) -> str:
-        return f"{self.user.first_name} {self.user.last_name}"
+        return f"{self.user.email}: {self.dl_number}"
 
 
 class PasswordResetToken(models.Model):
