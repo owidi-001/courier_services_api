@@ -32,17 +32,12 @@ class EmailThead(Thread):
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
     national_id = models.CharField(max_length=8, null=False, blank=False, unique=True)
     phone_number = models.CharField(max_length=13, null=False, blank=False, unique=True)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name", "national_id", "phone_number"]
+    REQUIRED_FIELDS = ["national_id", "phone_number"]
     objects = UserManager()
-
-    def get_full_name(self):
-        return f"{self.first_name} {self.last_name}"
 
     def __str__(self) -> str:
         return f"{self.email}"
@@ -65,45 +60,6 @@ class Customer(models.Model):
 
     def get_name(self):
         return f"{self.user.name}"
-
-
-class City(models.Model):
-    name = models.CharField(max_length=30, unique=True)
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class Street(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class Address(models.Model):
-    zip_code = models.CharField(max_length=20)
-    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
-    street = models.ForeignKey(Street, on_delete=models.SET_NULL, null=True)
-
-    class Meta:
-        db_table = "addresses"
-
-    def __str__(self) -> str:
-        return f"{self.zip_code} {self.street} {self.city}, Kenya"
-
-
-class UserAddress(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address = models.ForeignKey(
-        Address, on_delete=models.CASCADE, related_name="user_address")
-
-    class Meta:
-        unique_together = (("user", "address"),)
-        db_table = "user_addresses"
-
-    def __str__(self) -> str:
-        return f"{self.user} - {self.address}"
 
 
 # Driver

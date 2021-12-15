@@ -3,13 +3,35 @@ from users.models import *
 from shipment.models import *
 
 
-# USERS
+# USERS and AUTH
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["national_id", "phone_number", "first_name", "last_name", "email"]
+        fields = ["national_id", "phone_number", "email"]
 
 
+class UpdatePasswordSerializer(serializers.Serializer):
+    """
+    Serializer for password change endpoint .
+    """
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    """
+    Serializer for password reset endpoint.
+    """
+    email = serializers.EmailField(required=True)
+
+
+class NewPasswordSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    new_password = serializers.CharField()
+    short_code = serializers.IntegerField()
+
+
+# SHIPMENT and ADDRESS
 class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
@@ -54,27 +76,6 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ["user", "profile_image", "phone_number"]
-
-
-class ChangePasswordSerializer(serializers.Serializer):
-    """
-    Serializer for password change endpoint.
-    """
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-
-
-class ResetPasswordSerializer(serializers.Serializer):
-    """
-    Serializer for password reset endpoint.
-    """
-    email = serializers.EmailField(required=True)
-
-
-class NewPasswordSerializer(serializers.Serializer):
-    uid = serializers.CharField()
-    new_password = serializers.CharField()
-    short_code = serializers.IntegerField()
 
 
 # SHIPMENT
