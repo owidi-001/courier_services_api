@@ -16,18 +16,21 @@ from .serializers import *
 
 from .forms import UserLoginForm, UserCreationForm, CustomerProfileUpdateForm, DriverProfileUpdateForm
 from .token_generator import password_reset_token
-from .models import Customer,Driver, User, PasswordResetToken
+from .models import Customer, Driver, User, PasswordResetToken
 
 from django.template.loader import render_to_string
 
 from rest_framework.authtoken.models import Token
 
-from users.models import EmailThead
+from .models import EmailThead
+# Documentation schema
+from .user_doc_schema import *
 
 
 # users
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterUser(APIView):
+    schema = RegistrationSchema()
 
     def post(self, request):
         form = UserCreationForm(request.data)
@@ -38,6 +41,7 @@ class RegisterUser(APIView):
             token = Token.objects.get(user=user).key
             data["token"] = token
             email_to = form.cleaned_data.get("email")
+            # email_to = "kevinalex846@gmail.com"
             password = form.cleaned_data["password"]
             message = render_to_string("registration_email.html", {
                 "password": password, "email": email_to})
@@ -53,6 +57,7 @@ class UserLogin(APIView):
     """
     login user
     """
+    schema = UserLoginSchema()
 
     def post(self, request):
         form = UserLoginForm(request.data)
@@ -71,6 +76,8 @@ class UserLogin(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UpdatePasswordView(APIView):
+    schema = ChangePasswordSchema()
+
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -94,6 +101,7 @@ class UpdatePasswordView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ForgotPasswordView(APIView):
+    schema = PasswordSchema()
 
     def post(self, request):
         serializer = ResetPasswordSerializer(data=request.data)
@@ -149,6 +157,8 @@ class CustomerProfileView(APIView):
     """
     customer view
     """
+    schema = UserSchema()
+
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -194,6 +204,8 @@ class DriverProfileView(APIView):
     """
      api endpoint for driver profile
     """
+    schema = UserSchema()
+
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 

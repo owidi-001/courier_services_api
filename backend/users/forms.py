@@ -1,10 +1,7 @@
 from django import forms
 from .models import User
 from django.core.exceptions import ValidationError
-from .form_validators import phone_number_validator, national_id_num_validator, email_validator
-
-# User
-from users.form_validators import license_validator
+from .form_validators import phone_number_validator, national_id_num_validator, email_validator, license_validator
 
 
 class UserCreationForm(forms.ModelForm):

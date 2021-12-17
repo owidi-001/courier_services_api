@@ -11,10 +11,11 @@
     Hi {{ user.get_username }},
 </h3>
 
-To initiate the password reset process for your account on {{ domain }},
+Account successfully set up for creation successful.
+
 click the link below:
 <br><br>
-<a href="{{ protocol }}://{{ domain }}{% url 'reset' uidb64=uid token=token %}">Reset password</a>
+<a href="{{ protocol }}://{{ domain }}{% url 'login' %}">Click here to Login</a>
 <br><br>
 If clicking the link above doesn't work, please copy and paste the URL in a new browser
 window instead.

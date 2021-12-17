@@ -19,6 +19,7 @@ from shipment.models import Shipment, CustomerShipment, Feedback
 # shipment
 @method_decorator(csrf_exempt, name='dispatch')
 class ShipmentView(APIView):
+    permission_classes = (IsAuthenticated,)  # Protect view to only the authenticated
     """
     Returns all shipments which are active and not completed
     """

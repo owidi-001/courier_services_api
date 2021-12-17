@@ -12,19 +12,25 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
     class Meta:
         model = Customer
-        fields = ["id", "user", "national_id", "phone_number", "email"]
+        fields = ["id", "national_id", "phone_number", "email"]
 
 
 class DriverSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
     class Meta:
         model = Driver
-        fields = ["id", "user", "phone_number", "dl_number", "national_id_number", "gender"]
+        fields = ["id", "phone_number", "dl_number", "national_id_number", "gender"]
+
+
+# API serializer classes
+# class LoginSerializer(serializers.ModelSerializer):
+#     email = serializers.EmailField()
+#     password = serializers.CharField(required=True)
+#
+#     class Meta:
+#         model = User
+#         fields = ["email", "password"]
 
 
 class UpdatePasswordSerializer(serializers.Serializer):
