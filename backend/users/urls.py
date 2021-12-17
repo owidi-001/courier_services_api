@@ -1,29 +1,22 @@
 from django.urls import path
-from .views import (CustomerProfileView,customer_suport, RegisterCustomer, ChangePasswordView,FeedbackView,
-                      UserAddressView,  CustomerBookingView, UserLogin, ForgotPasswordView)
-# from rest_framework.documentation import include_docs_urls
+from .views import (RegisterUser,UserLogin,UpdatePasswordView,ForgotPasswordView,CustomerProfileView,DriverProfileView)
 
-from backend.api.driver_views import DriverProfileView, DriverShipment
+from django.contrib.auth.views import LogoutView
+from django.conf import settings
 
 
 urlpatterns = [
-
-    # Auth
+    # Auth user
+    path("auth/register/", RegisterUser.as_view()),
     path("auth/login/", UserLogin.as_view()),
-    path("auth/change-password/", ChangePasswordView.as_view()),
-    path("auth/customer/register/", RegisterCustomer.as_view()),
-    path("auth/reset/", ForgotPasswordView.as_view()),
+    path("logout/", LogoutView.as_view(), {'next_page': settings.LOGOUT_REDIRECT_URL}, name="logout"),
 
-    # Customer
-    path("customer/booking/", CustomerBookingView.as_view()),
+    path("auth/change-password/", UpdatePasswordView.as_view()),
+    path("auth/reset_password/", ForgotPasswordView.as_view()),
+
+    # customer
     path('customer/profile/', CustomerProfileView.as_view()),
-    # Driver
+
+    # driver
     path('driver/profile/', DriverProfileView.as_view()),
-    path('driver/shipment/', DriverShipment.as_view()),
-    path('support/', customer_suport),
-    
-    # Address
-    path("address/", UserAddressView.as_view()),
-    # Feedback
-    path('feedback/', FeedbackView.as_view()),
 ]

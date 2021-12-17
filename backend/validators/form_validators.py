@@ -23,3 +23,6 @@ def phone_number_validator(phone_number):
 def national_id_num_validator(national_id):
     pattern = r"(?<!\d)\d{8}(?!\d)"
     return re.match(pattern, national_id)
+
+def license_validator(dl_number):
+    return True

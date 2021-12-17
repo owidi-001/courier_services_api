@@ -1,30 +1,18 @@
 from django.contrib import admin
-from .models import *
-
-
-class DriverAdmin(admin.ModelAdmin):
-    list_display = ["user", "dl_number"]
-
-
-class CustomerAdmin(admin.ModelAdmin):
-    list_display = ["id", "user"]
+from .models import User,Customer,Driver
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ["id", "email", "date_joined", "is_staff"]
-    search_fields = ["national_id", "email"]
+    list_display = ["id", "first_name", "last_name", "email"]
+
+class DriverAdmin(admin.ModelAdmin):
+    list_display = ["id", "first_name", "last_name", "email", "dl_number"]
 
 
-class AddressAdmin(admin.ModelAdmin):
-    list_display = ("street", "city", "zip_code")
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ["id", "first_name", "last_name", "email"]
 
 
-class UserAddressAdmin(admin.ModelAdmin):
-    list_display = ("user", "address")
-
-
+admin.site.register(User)
 admin.site.register(Driver, DriverAdmin)
 admin.site.register(Customer, CustomerAdmin)
-admin.site.register(User, UserAdmin)
-admin.site.register(Address, AddressAdmin)
-admin.site.register(UserAddress, UserAddressAdmin)

@@ -15,7 +15,7 @@ from .managers import UserManager
 
 
 def upload(instance, filename):
-    return f"images/{instance.user.id}/{filename}"
+    return f"media/{instance.user.id}/{filename}"
 
 
 class EmailThead(Thread):
@@ -51,28 +51,26 @@ def create_auth_token(sender=None, instance=None, created=False, **kwargs):
 
 
 # Customer
-class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_image = models.ImageField(null=True, blank=True, upload_to=upload)
+class Customer(User):
+    avatar = models.ImageField(null=True, blank=True, upload_to='media/')
 
     def __str__(self) -> str:
-        return f"{self.user.email}"
+        return f"{self.email}"
 
     def get_name(self):
-        return f"{self.user.name}"
+        return f"{self.first_name}"
 
 
 # Driver
-class Driver(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_image = models.ImageField(null=True, blank=True, upload_to=upload)
+class Driver(User):
+    avatar = models.ImageField(null=True, blank=True, upload_to='media/')
     gender = models.CharField(max_length=1, choices=(
         ("M", "Male"), ("F", "Female")
     ))
     dl_number = models.CharField(max_length=10, unique=True)  # license No
 
     def __str__(self) -> str:
-        return f"{self.user.email}: {self.dl_number}"
+        return f"{self.email}: {self.dl_number}"
 
 
 class PasswordResetToken(models.Model):

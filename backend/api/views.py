@@ -19,12 +19,12 @@ from .serializers import *
 from users.data import SUPPORT_CONTACT
 from users.forms import UserLoginForm, UserProfileUpdateForm, UserCreationForm, AddressUpdateForm
 from users.token_generator import password_reset_token
-from users.models import Customer, UserAddress, City, Street, Address, User, PasswordResetToken
+from users.models import Customer, User, PasswordResetToken
 
-from shipment.models import Shipment, CustomerBooking, Feedback
+from shipment.models import Shipment, CustomerShipment, Feedback
 
 '''
-contains documentation schema
+    contains documentation schema
 '''
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -32,41 +32,10 @@ from django.core.mail import send_mail
 
 from rest_framework.authtoken.models import Token
 
-
-# create a thread to send email
-class EmailThead(Thread):
-    def __init__(self, email_to, message):
-        super().__init__()
-        self.email_to = email_to
-        self.message = message
-
-    def run(self):
-        send_mail("subject", self.message, settings.EMAIL_HOST_USER, self.email_to,
-                  fail_silently=True, html_message=self.message)
+from users.models import EmailThead
 
 
-# Customer registration
-@method_decorator(csrf_exempt, name='dispatch')
-class RegisterCustomer(APIView):
-
-    def post(self, request):
-        form = UserCreationForm(request.data)
-        if form.is_valid():
-            user = form.save()
-            data = UserSerializer(user).data
-            # create auth token
-            token = Token.objects.get(user=user).key
-            data["token"] = token
-            email_to = form.cleaned_data.get("email")
-            password = form.cleaned_data["password"]
-            message = render_to_string("registration_email.html", {
-                "password": password, "email": email_to})
-            EmailThead([email_to], message).start()
-
-            return Response(data, status=200)
-        else:
-            return Response(form.errors, status=400)
-
+# users
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UserLogin(APIView):
@@ -112,30 +81,6 @@ class UpdatePasswordView(APIView):
         return Response(serializer.errors, status=400)
 
 
-def put(request):
-    serializer = NewPasswordSerializer(data=request.data)
-    if serializer.is_valid():
-
-        uidb64 = request.data.get("uid")
-        try:
-            short_code = int(request.data.get('short_code'))
-            uid = int(force_bytes(urlsafe_base64_decode(uidb64)))
-            password_token = PasswordResetToken.objects.get(
-                user=uid, short_token=short_code)
-        except(TypeError, ValueError, OverflowError, PasswordResetToken.DoesNotExist):
-            return Response({"message": "The cofirmation code is invalid or it has expired"}, status=400)
-
-        if password_reset_token.check_token(password_token.user, password_token.reset_token):
-            user = get_object_or_404(User, id=uid)
-            user.set_password(serializer.data.get("new_password"))
-            user.save()
-            password_token.delete()
-            return Response({"message": "Your password has been changed successfuly "}, status=201)
-        else:
-            return Response({"message": "Your token has expired please generate another token "}, status=400)
-    return Response(serializer.errors, status=400)
-
-
 @method_decorator(csrf_exempt, name='dispatch')
 class ForgotPasswordView(APIView):
 
@@ -174,8 +119,9 @@ class ForgotPasswordView(APIView):
             })
             EmailThead([email], message).start()
 
-            return Response({"message": f"please check code sent to {email} to change your password","token":token, "uid": uid64},
-                            status=200)
+            return Response(
+                {"message": f"please check code sent to {email} to change your password", "token": token, "uid": uid64},
+                status=200)
         return Response(serializer.errors, status=400)
 
     @staticmethod
@@ -184,6 +130,29 @@ class ForgotPasswordView(APIView):
         for _ in range(6):
             token += "1234567890"[random.randint(0, 9)]
         return int(token)
+
+
+# Customer
+@method_decorator(csrf_exempt, name='dispatch')
+class RegisterCustomer(APIView):
+
+    def post(self, request):
+        form = UserCreationForm(request.data)
+        if form.is_valid():
+            user = form.save()
+            data = CustomerSerializer(user).data
+            # create auth token
+            token = Token.objects.get(user=user).key
+            data["token"] = token
+            email_to = form.cleaned_data.get("email")
+            password = form.cleaned_data["password"]
+            message = render_to_string("registration_email.html", {
+                "password": password, "email": email_to})
+            EmailThead([email_to], message).start()
+
+            return Response(data, status=200)
+        else:
+            return Response(form.errors, status=400)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -233,6 +202,8 @@ class CustomerProfileView(APIView):
         return Response({"message": "invalid image"}, status=400)
 
 
+# shipment
+
 @method_decorator(csrf_exempt, name='dispatch')
 class ShipmentView(APIView):
     """
@@ -266,7 +237,7 @@ class CustomerBookingView(APIView):
         Returns all customer bookings
         """
         customer = get_object_or_404(Customer, user=request.user)
-        bookings = CustomerBooking.objects.filter(customer=customer)
+        bookings = CustomerShipment.objects.filter(customer=customer)
         return Response(BookingSerializer(bookings, many=True).data, status=200)
 
     # def post(self, request):

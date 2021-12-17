@@ -2,7 +2,7 @@ from django import forms
 from .models import Shipment
 
 
-class BookingForm(forms.Form):
+class ShipmentForm(forms.Form):
     class Meta:
         model = Shipment
-        fields = ['__all__']
+        fields = ["cargo","origin","destination","vehicle"]

@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from validators.form_validators import phone_number_validator, national_id_num_validator, email_validator
 
 
+# User
 class UserCreationForm(forms.ModelForm):
     email = forms.EmailField(help_text="Email is required")
     phone_number = forms.CharField(
@@ -55,8 +56,9 @@ class UserLoginForm(forms.Form):
     password = forms.CharField(max_length=150)
 
 
-class UserProfileUpdateForm(forms.Form):
-    profile_image = forms.FileField(required=False)
+# Customer
+class CustomerProfileUpdateForm(forms.Form):
+    avatar = forms.FileField(required=False)
     phone_number = forms.CharField(required=False, max_length=13)
     email = forms.EmailField(required=False)
 
@@ -77,7 +79,40 @@ class UserProfileUpdateForm(forms.Form):
         return email
 
 
-class AddressUpdateForm(forms.Form):
-    zip_code = forms.CharField(max_length=50)
-    street = forms.CharField(max_length=100)
-    city = forms.CharField(max_length=50)
+
+# Driver
+class DriverProfileUpdateForm(forms.Form):
+    avatar = forms.FileField(required=False)
+    phone_number = forms.CharField(required=False, max_length=13)
+    email = forms.EmailField(required=False)
+    gender = forms.CharField(max_length=1)
+    dl_number = forms.CharField(max_length=10)  # license No
+
+
+
+    def clean_phone_number(self):
+        phone_no = self.cleaned_data.get("phone_number")
+        if phone_no and not phone_number_validator(phone_no):
+            raise ValidationError(
+                "please provide valid phone number eg +254712345678")
+        return phone_no
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if not email:
+            raise ValidationError("Please provide your email address")
+        if not email_validator(email):
+            raise ValidationError(
+                "please provide a valid Email address")
+        return email
+
+    def clean_dl_number(self):
+        dl_number=self.cleaned_data.get("dl_number")
+        if not dl_number:
+            raise ValidationError("Driver must have a driving license number")
+
+        if not license_validator(email):
+            raise ValidationError(
+                "Please provide a valid driving license number")
+
+        return dl_number
