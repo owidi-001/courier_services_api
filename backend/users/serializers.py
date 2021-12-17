@@ -1,7 +1,7 @@
 from abc import ABC
 
 from rest_framework import serializers
-from users.models import User,Customer,Driver
+from users.models import User, Customer, Driver
 
 
 # USERS and AUTH
@@ -12,10 +12,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    user=UserSerializer()
+    user = UserSerializer()
+
     class Meta:
         model = Customer
-        fields = ["id","user","national_id", "phone_number", "email"]
+        fields = ["id", "user", "national_id", "phone_number", "email"]
 
 
 class DriverSerializer(serializers.ModelSerializer):
@@ -23,7 +24,7 @@ class DriverSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Driver
-        fields = ["id", "user","phone_number", "dl_number", "national_id_number", "gender"]
+        fields = ["id", "user", "phone_number", "dl_number", "national_id_number", "gender"]
 
 
 class UpdatePasswordSerializer(serializers.Serializer):

@@ -1,38 +1,19 @@
-import random
-from threading import Thread
-
-from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .forms import ShipmentForm
 from .serializers import *
 
 from users.data import SUPPORT_CONTACT
-from users.forms import UserLoginForm, UserCreationForm
-from users.token_generator import password_reset_token
-from users.models import Customer, User, PasswordResetToken
+from users.models import Customer, Driver, User, EmailThead, PasswordResetToken
 
 from shipment.models import Shipment, CustomerShipment, Feedback
-
-'''
-    contains documentation schema
-'''
-from django.template.loader import render_to_string
-from django.conf import settings
-from django.core.mail import send_mail
-
-from rest_framework.authtoken.models import Token
-
-from users.models import EmailThead
 
 
 # shipment
@@ -41,6 +22,7 @@ class ShipmentView(APIView):
     """
     Returns all shipments which are active and not completed
     """
+
     def get(self, request):
         query = Shipment.objects.filter(status="A")
         origin = request.GET.get("from") or request.GET.get("q")
@@ -77,11 +59,10 @@ class CustomerShipmentView(APIView):
          """
         form = ShipmentForm(request.data)
         if form.is_valid():
-
             shipment = get_object_or_404(Shipment, id=form.cleaned_data["shipment_id"])
 
             customer = get_object_or_404(Customer, user=request.user)
-            booking, _ = CustomerShipment.objects.get_or_create(customer=customer,shipment=shipment,)
+            booking, _ = CustomerShipment.objects.get_or_create(customer=customer, shipment=shipment, )
 
             booking.status = "P"
             booking.save()
@@ -118,7 +99,8 @@ class DriverShipmentView(APIView):
             Returns all driver active shipments
         """
         driver = get_object_or_404(Driver, user=request.user)
-        shipments = CustomerShipment.objects.filter(driver=shipment.vehicle.driver) # Filter shipments beloging to the driver
+        shipments = CustomerShipment.objects.filter(
+            driver=driver)  # Filter shipments belonging to the driver
         return Response(CustomerShipmentSerializer(shipments, many=True).data, status=200)
 
     def put(self, request):

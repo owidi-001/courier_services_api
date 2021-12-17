@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from users.models import Customer,Driver, EmailThead
+from users.models import Customer, Driver, EmailThead
 
 
 class Cargo(models.Model):
@@ -43,7 +43,7 @@ class Destination(models.Model):
 
 
 class Vehicle(models.Model):
-    driver=models.ForeignKey(Driver,on_delete=models.CASCADE) # One driver can own/drive many vehicles
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)  # One driver can own/drive many vehicles
     carrier_type = models.CharField(max_length=100, help_text="vehicle carriage type",
                                     choices=(("L", "Lorry"), ("P", "Pickup"), ("B", "MotorBike")))
     carrier_capacity = models.CharField(max_length=100, help_text="Approximate vehicle carrying capacity",
@@ -58,7 +58,6 @@ class Vehicle(models.Model):
         return f"{self.vehicle_registration_number} - {self.carrier_capacity} {self.carrier_type} "
 
 
-
 class Shipment(models.Model):
     cargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
@@ -66,7 +65,7 @@ class Shipment(models.Model):
     destination = models.ForeignKey(Destination, on_delete=models.PROTECT)
     status = models.CharField(max_length=1, choices=(
         ("A", "Active"),
-        ("P","Pending"),
+        ("P", "Pending"),
         ("C", "Canceled"),
         ("F", "fulfilled")), default="P")
     shipment_date = models.DateTimeField(null=True, blank=True, default=timezone.now)
@@ -77,8 +76,7 @@ class Shipment(models.Model):
 
 class CustomerShipment(models.Model):
     shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE, null=True)
-    customer=models.ForeignKey(Customer,on_delete=models.CASCADE)
-    # customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ("shipment", "customer")
@@ -94,7 +92,6 @@ def send_customer_notification(sender=None, instance=None, created=False, **kwar
         if instance.status == "F":
             clients = CustomerShipment.objects.filter(
                 shipment=instance.shipment, status="F")
-
 
             message = "The cargo arrived at their destination."
             # email notification

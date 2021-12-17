@@ -1,31 +1,24 @@
 import random
-from threading import Thread
 
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serializers import *
 
-from users.data import SUPPORT_CONTACT
-from users.forms import UserLoginForm, UserCreationForm
-from users.token_generator import password_reset_token
-from users.models import Customer, User, PasswordResetToken
-
-from shipment.models import Shipment, CustomerShipment, Feedback
+from .forms import UserLoginForm, UserCreationForm, CustomerProfileUpdateForm, DriverProfileUpdateForm
+from .token_generator import password_reset_token
+from .models import Customer,Driver, User, PasswordResetToken
 
 from django.template.loader import render_to_string
-from django.conf import settings
-from django.core.mail import send_mail
 
 from rest_framework.authtoken.models import Token
 
@@ -54,11 +47,13 @@ class RegisterUser(APIView):
         else:
             return Response(form.errors, status=400)
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class UserLogin(APIView):
     """
     login user
     """
+
     def post(self, request):
         form = UserLoginForm(request.data)
         if form.is_valid():
@@ -72,8 +67,6 @@ class UserLogin(APIView):
             return Response({"errors": ["please provide valid credentials"]},
                             status=400)
         return Response(form.errors, status=400)
-
-
 
 
 @method_decorator(csrf_exempt, name='dispatch')

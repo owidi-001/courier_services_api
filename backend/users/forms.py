@@ -1,10 +1,12 @@
 from django import forms
 from .models import User
 from django.core.exceptions import ValidationError
-from validators.form_validators import phone_number_validator, national_id_num_validator, email_validator
-
+from .form_validators import phone_number_validator, national_id_num_validator, email_validator
 
 # User
+from users.form_validators import license_validator
+
+
 class UserCreationForm(forms.ModelForm):
     email = forms.EmailField(help_text="Email is required")
     phone_number = forms.CharField(
@@ -79,7 +81,6 @@ class CustomerProfileUpdateForm(forms.Form):
         return email
 
 
-
 # Driver
 class DriverProfileUpdateForm(forms.Form):
     avatar = forms.FileField(required=False)
@@ -87,8 +88,6 @@ class DriverProfileUpdateForm(forms.Form):
     email = forms.EmailField(required=False)
     gender = forms.CharField(max_length=1)
     dl_number = forms.CharField(max_length=10)  # license No
-
-
 
     def clean_phone_number(self):
         phone_no = self.cleaned_data.get("phone_number")
@@ -107,11 +106,11 @@ class DriverProfileUpdateForm(forms.Form):
         return email
 
     def clean_dl_number(self):
-        dl_number=self.cleaned_data.get("dl_number")
+        dl_number = self.cleaned_data.get("dl_number")
         if not dl_number:
             raise ValidationError("Driver must have a driving license number")
 
-        if not license_validator(email):
+        if not license_validator(dl_number):
             raise ValidationError(
                 "Please provide a valid driving license number")
 

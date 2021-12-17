@@ -1,14 +1,13 @@
 from abc import ABC
 
 from rest_framework import serializers
-from shipment.models import Cargo,Vehicle,Shipment,CustomerShipment
+from .models import Cargo, Vehicle, Shipment, CustomerShipment
 
-from users.serializers import CustomerSerializer,DriverSerializer
+from users.serializers import CustomerSerializer, DriverSerializer
 
 
 # SHIPMENT
 class CargoSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Cargo
         fields = ["owner", "size", "nature"]
