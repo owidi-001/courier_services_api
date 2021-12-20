@@ -30,6 +30,10 @@ from .user_doc_schema import *
 # users
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterUser(APIView):
+    """
+        The user fills the required parameters namely (email,password,national id and phone number).
+        The form is checked for validity and user saved if valid otherwise relevant exception is thrown.
+    """
     schema = RegistrationSchema()
 
     def post(self, request):
@@ -55,7 +59,7 @@ class RegisterUser(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class UserLogin(APIView):
     """
-    login user
+    The user signs in using the email and password used for registering.
     """
     schema = UserLoginSchema()
 
@@ -76,7 +80,10 @@ class UserLogin(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UpdatePasswordView(APIView):
-    schema = ChangePasswordSchema()
+    """
+    A user in session can change a password by filling in the old password and filling in the new.
+    """
+    schema = UpdatePasswordSchema()
 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -101,6 +108,9 @@ class UpdatePasswordView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ForgotPasswordView(APIView):
+    """
+    The user fills in email where reset instructions are sent to their email.
+    """
     schema = PasswordSchema()
 
     def post(self, request):
@@ -155,7 +165,7 @@ class ForgotPasswordView(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class CustomerProfileView(APIView):
     """
-    customer view
+        Returns the basic saved customer details such as email,national id, phone and shipments.
     """
     schema = UserSchema()
 
@@ -202,7 +212,7 @@ class CustomerProfileView(APIView):
 # driver_views
 class DriverProfileView(APIView):
     """
-     api endpoint for driver profile
+     Api endpoint for driver profile. Works the same as customers
     """
     schema = UserSchema()
 

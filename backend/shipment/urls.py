@@ -4,10 +4,10 @@ from .views import ShipmentView, CustomerShipmentView, DriverShipmentView, Feedb
 urlpatterns = [
     # SHIPMENT
     path("shipments/", ShipmentView.as_view(), name="shipments"),
-    path("customer/<int:id>/shipments/", CustomerShipmentView.as_view()),  # customer id the path ie <int:id>/shipments
-
-    path('driver/<int:id>/shipments/', DriverShipmentView.as_view()),  # Driver list of shipments
-
+    # profile shipment details
+    path("profile/customer/<int:id>/", CustomerShipmentView.as_view()),  # customer id the path ie <int:id>/shipments
+    path('profile/driver/<int:id>/', DriverShipmentView.as_view()),  # Driver list of shipments
+    # Others
     path('support/', customer_support),
     path('feedback/', FeedbackView.as_view()),
 

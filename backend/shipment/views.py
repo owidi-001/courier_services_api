@@ -15,6 +15,9 @@ from users.models import Customer, Driver, User, EmailThead, PasswordResetToken
 
 from shipment.models import Shipment, CustomerShipment, Feedback
 
+# Documentation schema
+from .shipment_doc_schema import *
+
 
 # shipment
 @method_decorator(csrf_exempt, name='dispatch')
@@ -42,7 +45,7 @@ class CustomerShipmentView(APIView):
     """
     customer car booking view
     """
-
+    schema = CustomerShipmentSchema()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -91,7 +94,7 @@ class DriverShipmentView(APIView):
     """
     Driver get shipment requests
     """
-
+    schema = DriverShipmentSchema()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -119,6 +122,9 @@ class DriverShipmentView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class FeedbackView(APIView):
+
+    schema = FeedbackSchema()
+
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 

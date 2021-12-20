@@ -8,8 +8,7 @@ class RegistrationSchema(AutoSchema):
         if method.lower() == 'post':
             extra_fields = [
                 coreapi.Field("email", required=True, location="form"),
-                coreapi.Field("first_name", required=True, location="form"),
-                coreapi.Field("last_name", required=True, location="form"),
+                coreapi.Field("national_id", required=True, location="form"),
                 coreapi.Field("phone_number", required=True, location="form",
                               description="must start with +254... eg +2547 xxxx xxxx"),
                 coreapi.Field("password", required=True, location="form"),
@@ -29,11 +28,11 @@ class UserLoginSchema(AutoSchema):
 class UserSchema(AutoSchema):
     def get_manual_fields(self, path, method):
         extra_fields = []
-        if method.lower() == 'put':
+        if method.lower() in ['put', 'post']:
             extra_fields = [
                 coreapi.Field("email", required=False, location="form"),
                 coreapi.Field("phone_number", required=False, location="form"),
-                coreapi.Field("profile_image", required=False,
+                coreapi.Field("national_id", required=False,
                               location="form", schema=None),
 
             ]
@@ -41,45 +40,7 @@ class UserSchema(AutoSchema):
         return manual_fields + extra_fields
 
 
-class CustomerBookingSchema(AutoSchema):
-    def get_manual_fields(self, path, method):
-        extra_fields = []
-        if method.lower() == 'post':
-            extra_fields = [
-                coreapi.Field("trip_id", required=True, location="form"),
-                coreapi.Field("seats_number", required=True, location="form"),
-
-            ]
-        if method.lower() == "put":
-            extra_fields = [
-                coreapi.Field("book_id", required=True, location="form",
-                              description="id of booking to cancel"),
-
-            ]
-        manual_fields = super().get_manual_fields(path, method)
-        return manual_fields + extra_fields
-
-
-class AddressSchema(AutoSchema):
-    def get_manual_fields(self, path, method):
-        extra_fields = []
-        if method.lower() == 'post':
-            extra_fields = [
-                coreapi.Field("street", required=True, location="form"),
-                coreapi.Field("zip_code", required=True, location="form"),
-                coreapi.Field("city", required=True, location="form")
-
-            ]
-        if method.lower() == "delete":
-            extra_fields = [
-                coreapi.Field("address_id", required=True, location="form",
-                              description="id of booking to cancel"),
-            ]
-        manual_fields = super().get_manual_fields(path, method)
-        return manual_fields + extra_fields
-
-
-class ChangePasswordSchema(AutoSchema):
+class UpdatePasswordSchema(AutoSchema):
     def get_manual_fields(self, path, method):
         extra_fields = [
             coreapi.Field("new_password", required=True, location="form"),
@@ -112,28 +73,5 @@ class ResetPasswordSchema(AutoSchema):
                 coreapi.Field("short_code", required=True, location="form"),
                 coreapi.Field("new_password", required=True, location="form"),
             ]
-        manual_fields = super().get_manual_fields(path, method)
-        return manual_fields + extra_fields
-
-
-class DriverShipmentSchema(AutoSchema):
-    def get_manual_fields(self, path, method):
-        extra_fields = []
-        if method.lower() == "post":
-            extra_fields = [
-                coreapi.Field("trip_id", required=True, location="form"),
-            ]
-        manual_fields = super().get_manual_fields(path, method)
-        return manual_fields + extra_fields
-
-
-class FeedbackSchema(AutoSchema):
-    def get_manual_fields(self, path, method):
-        extra_fields = []
-        if method.lower() == "post":
-            extra_fields = [
-                coreapi.Field("message", required=True, location="form"),
-            ]
-
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields
