@@ -22,8 +22,8 @@ class Cargo(models.Model):
 
 # Shipment pick point
 class Origin(models.Model):
-    long_position = models.DecimalField(max_digits=8, decimal_places=3)
-    lat_position = models.DecimalField(max_digits=8, decimal_places=3)
+    long_position = models.CharField(max_length=50)
+    lat_position = models.CharField(max_length=50)
 
     class Meta:
         verbose_name_plural = "origin"
@@ -33,8 +33,8 @@ class Origin(models.Model):
 
 
 class Destination(models.Model):
-    long_position = models.DecimalField(max_digits=8, decimal_places=3)
-    lat_position = models.DecimalField(max_digits=8, decimal_places=3)
+    long_position = models.CharField(max_length=50)
+    lat_position = models.CharField(max_length=50)
 
     class Meta:
         verbose_name_plural = "destination"
@@ -72,7 +72,7 @@ class Shipment(models.Model):
     shipment_date = models.DateTimeField(null=True, blank=True, default=timezone.now)
 
     def __str__(self) -> str:
-        return f"{self.status}"
+        return f"{self.origin} - {self.destination} by {self.vehicle}"
 
 
 class CustomerShipment(models.Model):
@@ -106,8 +106,12 @@ def send_customer_notification(sender=None, instance=None, created=False, **kwar
 
 class Feedback(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    shipment = models.OneToOneField(Shipment, on_delete=models.CASCADE, default=None)
     message = models.TextField()
     created_on = models.DateTimeField(auto_created=True, default=timezone.now)
 
     class Meta:
         verbose_name_plural = "Feedback"
+
+    def __str__(self):
+        return f"{self.user}: {self.message}"

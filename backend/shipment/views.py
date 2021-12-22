@@ -31,15 +31,12 @@ class ShipmentView(APIView):
 
     def get(self, request):
         query = Shipment.objects.filter(status="A")
-        # origin = request.GET.get("origin") or request.GET.get("q")
-        # destination = request.GET.get("destination")
-        # if origin:
-        #     query = query.filter(cargo__origin__name__contains=origin)
-        # if destination:
-        #     query = query.filter(
-        #         route__destination__name__contains=destination)
         response = ShipmentSerializer(query, many=True).data
         return Response(response)
+
+    """
+    Saves all shipment information filled by the customer.
+    """
 
     def post(self, request):
         """
@@ -69,29 +66,33 @@ class ShipmentView(APIView):
             booking, _ = CustomerShipment.objects.get_or_create(customer=request.user, shipment=shipment, )
             booking.status = "P"
             booking.save()
-            message = f"{customer} has booked a shipment from {shipment.origin} to {shipment.destination} \nShipment pending approval"
-            EmailThead(["admin@gmail.com"], message)
+            message = f"Dear {customer}, Your shipment request from {shipment.origin} to {shipment.destination} has " \
+                      f"been received and is waiting affirmation. This will take at maximum 2 mins. "
+            EmailThead([customer.email, "admin@gmail.com"], message)
 
             data = CustomerShipmentSerializer(booking).data
             return Response(data, status=200)
         return Response(form.errors, status=400)
 
-    def put(self, request):
+    def patch(self, request):
         """
-        Cancel a  booking
+            Cancel a  booking
         """
         shipment_id = request.data.get("shipment_id")
         customer_booking = get_object_or_404(CustomerShipment, id=shipment_id)
         customer_booking.status = "C"
+        customer_booking.vehicle = None  # Cancels the vehicle booked
         customer_booking.save()
-
+        # Mail customer to affirm shipment cancellation
+        message = f"You have successfully cancelled the shipment request"
+        EmailThead([customer_booking.customer.email, "courier_admin@gmail.com"], message)
         return Response(CustomerShipmentSerializer(customer_booking).data)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class DriverShipmentView(APIView):
     """
-    Driver get shipment requests
+        Driver get shipment requests
     """
     schema = DriverShipmentSchema()
     # authentication_classes = [TokenAuthentication]
@@ -101,22 +102,42 @@ class DriverShipmentView(APIView):
         """
             Returns all driver active shipments
         """
+        query = Shipment.objects.filter(status="A")
         driver = get_object_or_404(Driver, user=request.user)
-        shipments = CustomerShipment.objects.filter(
-            shipment.vehicle.driver == driver)  # Filter shipments belonging to the driver
+        shipments = []
+        [shipments.append(shipment) for shipment in query if shipment.vehicle.driver == driver]
+        # shipments= CustomerShipment.objects.filter(driver=driver)  # Filter shipments belonging to the driver
+
         return Response(CustomerShipmentSerializer(shipments, many=True).data, status=200)
 
     def put(self, request):
         """
-        Driver approves shipment requests
+            Driver approves shipment requests
         """
         shipment_id = request.data.get("shipment_id")
         customer_booking = get_object_or_404(CustomerShipment, id=shipment_id)
         customer_booking.confirmed = True
         customer_booking.shipment.status = "A"
         customer_booking.save()
-
+        # Mail customer to affirm shipment in progress.
+        message = f"{request.user} has confirmed your shipment set fom {customer_booking.shipment.origin} to {customer_booking.shipment.destination}"
+        EmailThead([customer_booking.customer.email, "courier_admin@gmail.com"], message)
         return Response(CustomerShipmentSerializer(customer_booking).data)
+
+    def patch(self, request):
+        """
+            Driver affirms shipment completion
+        """
+        shipment_id = request.data.get("shipment_id")
+        customer_shipment = get_object_or_404(CustomerShipment, id=shipment_id)
+        if customer_shipment.status == "A":
+            customer_shipment.shipment.status = "F"
+        customer_shipment.save()
+        # Mail customer to affirm shipment is completed.
+        message = f"Your shipment if complete.\nWe value your feedback. Please leave us a review. Thank you for " \
+                  f"trusting us. "
+        EmailThead([customer_shipment.customer.email, "courier_admin@gmail.com"], message)
+        return Response(CustomerShipmentSerializer(customer_shipment).data)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
