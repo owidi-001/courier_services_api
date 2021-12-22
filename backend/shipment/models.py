@@ -3,12 +3,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from users.models import Customer, Driver
+from users.models import Driver, User
 from users.views import EmailThead
 
 
 class Cargo(models.Model):
-    owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     size = models.IntegerField(default=1)
     nature = models.CharField(max_length=100, help_text="What's the nature of your cargo?",
                               choices=(("F", "fragile"), ("NF", "Not Fragile")))
@@ -56,14 +56,14 @@ class Vehicle(models.Model):
         verbose_name_plural = "Vehicle"
 
     def __str__(self) -> str:
-        return f"{self.vehicle_registration_number} - {self.carrier_capacity} {self.carrier_type} "
+        return f"{self.vehicle_registration_number}"
 
 
 class Shipment(models.Model):
     cargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
     origin = models.ForeignKey(Origin, on_delete=models.PROTECT)
     destination = models.ForeignKey(Destination, on_delete=models.PROTECT)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
     status = models.CharField(max_length=1, choices=(
         ("A", "Active"),
         ("P", "Pending"),
@@ -77,13 +77,14 @@ class Shipment(models.Model):
 
 class CustomerShipment(models.Model):
     shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE, null=True)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    confirmed = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("shipment", "customer")
 
     def __str__(self) -> str:
-        return f"Owner: {self.customer.email} - Status: {self.shipment.status}"
+        return f"Owner: {self.customer} - Status: {self.shipment}"
 
 
 # send notification when the shipment is done
@@ -104,9 +105,8 @@ def send_customer_notification(sender=None, instance=None, created=False, **kwar
 
 
 class Feedback(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True)
-    shipment = models.OneToOneField(CustomerShipment, on_delete=models.CASCADE)
-    comment = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    message = models.TextField()
     created_on = models.DateTimeField(auto_created=True, default=timezone.now)
 
     class Meta:

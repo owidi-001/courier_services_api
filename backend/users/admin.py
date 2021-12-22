@@ -1,19 +1,14 @@
 from django.contrib import admin
-from .models import User, Customer, Driver
+from .models import User, Driver
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ["id", "first_name", "last_name", "email"]
+    list_display = ["id", "email", "phone_number", "national_id"]
 
 
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ["user"]
+    list_display = ["user", "dl_number", "gender"]
 
 
-class CustomerAdmin(admin.ModelAdmin):
-    list_display = ["user"]
-
-
-admin.site.register(User)
+admin.site.register(User, UserAdmin)
 admin.site.register(Driver, DriverAdmin)
-admin.site.register(Customer, CustomerAdmin)

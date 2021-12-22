@@ -34,6 +34,7 @@ class UserSchema(AutoSchema):
                 coreapi.Field("phone_number", required=False, location="form"),
                 coreapi.Field("national_id", required=False,
                               location="form", schema=None),
+                coreapi.Field("avatar", required=False, location="form"),
 
             ]
         manual_fields = super().get_manual_fields(path, method)
@@ -45,12 +46,17 @@ class DriverSchema(AutoSchema):
         extra_fields = []
         if method.lower() in ['put', 'post']:
             extra_fields = [
-                coreapi.Field("user", required=False, location="form"),
+                # coreapi.Field("user", required=False, location="form"),
                 coreapi.Field("dl_number", required=False, location="form"),
                 coreapi.Field("gender", required=False, location="form"),
             ]
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields
+
+
+"""
+For changing current user password
+"""
 
 
 class UpdatePasswordSchema(AutoSchema):
@@ -64,7 +70,12 @@ class UpdatePasswordSchema(AutoSchema):
         return manual_fields + extra_fields
 
 
-class PasswordSchema(AutoSchema):
+"""
+For resetting password/Forgot password
+"""
+
+
+class ResetPasswordSchema(AutoSchema):
     def get_manual_fields(self, path, method):
         extra_fields = [
             coreapi.Field("email", required=True, location="form"),
@@ -73,18 +84,18 @@ class PasswordSchema(AutoSchema):
         return manual_fields + extra_fields
 
 
-class ResetPasswordSchema(AutoSchema):
-    def get_manual_fields(self, path, method):
-        extra_fields = []
-        if method.lower() == "post":
-            extra_fields = [
-                coreapi.Field("email", required=True, location="form"),
-            ]
-        if method.lower() == "put":
-            extra_fields = [
-                coreapi.Field("uid", required=True, location="form"),
-                coreapi.Field("short_code", required=True, location="form"),
-                coreapi.Field("new_password", required=True, location="form"),
-            ]
-        manual_fields = super().get_manual_fields(path, method)
-        return manual_fields + extra_fields
+# class ResetPasswordSchema(AutoSchema):
+#     def get_manual_fields(self, path, method):
+#         extra_fields = []
+#         if method.lower() == "post":
+#             extra_fields = [
+#                 coreapi.Field("email", required=True, location="form"),
+#             ]
+#         if method.lower() == "put":
+#             extra_fields = [
+#                 coreapi.Field("uid", required=True, location="form"),
+#                 coreapi.Field("short_code", required=True, location="form"),
+#                 coreapi.Field("new_password", required=True, location="form"),
+#             ]
+#         manual_fields = super().get_manual_fields(path, method)
+#         return manual_fields + extra_fields

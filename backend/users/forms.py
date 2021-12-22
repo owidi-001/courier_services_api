@@ -55,8 +55,7 @@ class UserLoginForm(forms.Form):
     password = forms.CharField(max_length=150, widget=forms.PasswordInput)
 
 
-# Customer
-class CustomerProfileUpdateForm(forms.Form):
+class UserProfileUpdateForm(forms.Form):
     avatar = forms.FileField(required=False)
     phone_number = forms.CharField(required=False, max_length=13)
     email = forms.EmailField(required=False)

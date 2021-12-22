@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import Cargo,Origin,Destination,Vehicle,Shipment,CustomerShipment,Feedback
+from .models import Cargo, Origin, Destination, Vehicle, Shipment, CustomerShipment, Feedback
 
 
 class CargoAdmin(admin.ModelAdmin):
-    list_display = ["owner","size", "nature"]
+    list_display = ["owner", "size", "nature"]
 
 
 class ShipmentAdmin(admin.ModelAdmin):

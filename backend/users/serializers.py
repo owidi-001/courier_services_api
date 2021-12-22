@@ -1,20 +1,14 @@
 from abc import ABC
 
 from rest_framework import serializers
-from users.models import User, Customer, Driver
+from users.models import User, Driver
 
 
 # USERS and AUTH
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["national_id", "phone_number", "email"]
-
-
-class CustomerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Customer
-        fields = ["id", "national_id", "phone_number", "email"]
+        fields = ["national_id", "phone_number", "email", "avatar"]
 
 
 class DriverSerializer(serializers.ModelSerializer):
@@ -43,7 +37,7 @@ class UpdatePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
 
 
-class ResetPasswordSerializer(serializers.Serializer):
+class PasswordSerializer(serializers.Serializer):
     """
     Serializer for password reset endpoint.
     """

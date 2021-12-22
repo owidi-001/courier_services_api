@@ -14,10 +14,10 @@ from rest_framework.views import APIView
 
 from .serializers import *
 
-from .forms import UserLoginForm, UserCreationForm, CustomerProfileUpdateForm, DriverProfileUpdateForm, \
-    DriverCreationForm
+from .forms import UserLoginForm, UserCreationForm, DriverProfileUpdateForm, \
+    DriverCreationForm, UserProfileUpdateForm
 from .token_generator import password_reset_token
-from .models import Customer, Driver, User, PasswordResetToken
+from .models import Driver, User, PasswordResetToken
 
 from django.template.loader import render_to_string
 
@@ -55,12 +55,11 @@ class RegisterUser(APIView):
         form = UserCreationForm(request.data)
         if form.is_valid():
             user = form.save()
-            data = CustomerSerializer(user).data
+            data = UserSerializer(user).data
             # create auth token
             token = Token.objects.get(user=user).key
             data["token"] = token
             email_to = form.cleaned_data.get("email")
-            password = form.cleaned_data["password"]
             message = render_to_string("registration_email.html", {
                 "email": email_to})
             EmailThead([email_to], message).start()
@@ -149,14 +148,14 @@ class UpdatePasswordView(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class ForgotPasswordView(APIView):
+class ResetPasswordView(APIView):
     """
     The user fills in email where reset instructions are sent to their email.
     """
-    schema = PasswordSchema()
+    schema = ResetPasswordSchema()
 
     def post(self, request):
-        serializer = ResetPasswordSerializer(data=request.data)
+        serializer = PasswordSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.data.get("email")
             user = User.objects.filter(
@@ -180,7 +179,7 @@ class ForgotPasswordView(APIView):
                                      reset_token=token)
             obj.save()
             # send short_token to user email
-            # message = f'''Password reset code \n Code:{obj.short_token}'''
+            message = f'''Password reset code \n Code:{obj.short_token}'''
             message = render_to_string('password_reset_mail.html', {
                 'user': user,
                 'protocol': 'http',
@@ -205,7 +204,7 @@ class ForgotPasswordView(APIView):
 
 # Customer
 @method_decorator(csrf_exempt, name='dispatch')
-class CustomerProfileView(APIView):
+class UserProfileView(APIView):
     """
         Returns the basic saved customer details such as email,national id, phone and shipments.
     """
@@ -216,33 +215,33 @@ class CustomerProfileView(APIView):
 
     def get(self, request):
         """
-        Returns customer profile
+        Returns user profile
         """
-        customer_profile = get_object_or_404(Customer, user=request.user)
-        response = CustomerSerializer(customer_profile).data
+        user_profile = get_object_or_404(User, user=request.user)
+        response = UserSerializer(user_profile).data
         return Response(data=response, status=200)
 
     def put(self, request):
         """update profile - email, phone number"""
-        form = CustomerProfileUpdateForm(request.data)
+        form = UserProfileUpdateForm(request.data)
         if form.is_valid():
             user = request.user
-            customer_profile = get_object_or_404(Customer, user=user)
+            user_profile = get_object_or_404(User, user=user)
             if form.cleaned_data.get("email"):
                 user.email = form.cleaned_data["email"]
                 user.save()
             if form.cleaned_data.get("phone_number"):
-                customer_profile.phone_number = form.cleaned_data['phone_number']
-            customer_profile.save()
-            return Response(CustomerSerializer(customer_profile).data,
+                user_profile.phone_number = form.cleaned_data['phone_number']
+            user_profile.save()
+            return Response(UserSerializer(user_profile).data,
                             status=200)
 
         return Response(form.errors, status=400)
 
     def patch(self, request):
-        """update customer profile image"""
+        """update user profile image"""
         if request.FILES:
-            profile = Customer.objects.get(
+            profile = User.objects.get(
                 user=request.user
             )
             profile.profile_image = request.FILES[0]

@@ -3,7 +3,7 @@ from abc import ABC
 from rest_framework import serializers
 from .models import Cargo, Vehicle, Shipment, CustomerShipment
 
-from users.serializers import CustomerSerializer, DriverSerializer
+from users.serializers import UserSerializer, DriverSerializer
 
 
 # SHIPMENT
@@ -16,7 +16,7 @@ class CargoSerializer(serializers.ModelSerializer):
 class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
-        fields = ["vehicle_registration_number", "carrier_type", "carrier_capacity", "model"]
+        fields = ["vehicle_registration_number"]
 
 
 class ShipmentSerializer(serializers.ModelSerializer):
@@ -31,7 +31,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
 
 class CustomerShipmentSerializer(serializers.ModelSerializer):
     shipment = ShipmentSerializer()
-    customer = CustomerSerializer()
+    customer = UserSerializer()
 
     class Meta:
         model = CustomerShipment

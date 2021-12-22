@@ -1,14 +1,9 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.db import models
 # Generates auth token
-from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
-
-from django.core.mail import send_mail
-from threading import Thread
 
 # local modules
 from .managers import UserManager
@@ -23,6 +18,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     national_id = models.CharField(max_length=8, null=False, blank=False, unique=True)
     phone_number = models.CharField(max_length=13, null=False, blank=False, unique=True)
+    avatar = models.ImageField(null=True, blank=True, upload_to='media/')
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["national_id", "phone_number"]
@@ -43,25 +39,10 @@ def create_auth_token(sender=None, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
-# Customer
-class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(null=True, blank=True, upload_to='media/')
-
-    def __str__(self) -> str:
-        return f"{self.user.email}"
-
-    def get_name(self):
-        return f"{self.user.first_name}"
-
-    class Meta:
-        verbose_name_plural = "Customers"
-
-
 # Driver
 class Driver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(null=True, blank=True, upload_to='media/')
+
     gender = models.CharField(max_length=1, choices=(
         ("M", "Male"), ("F", "Female")
     ))
