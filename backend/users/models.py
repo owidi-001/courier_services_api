@@ -18,17 +18,6 @@ def upload(instance, filename):
     return f"media/{instance.user.id}/{filename}"
 
 
-class EmailThead(Thread):
-    def __init__(self, email_to, message):
-        super().__init__()
-        self.email_to = email_to
-        self.message = message
-
-    def run(self):
-        send_mail("subject", self.message, settings.EMAIL_HOST_USER, self.email_to,
-                  fail_silently=True, html_message=self.message)
-
-
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
@@ -43,7 +32,11 @@ class User(AbstractUser):
         return f"{self.email}"
 
 
-# generate authentication  token after a user has been created and send him/her an email
+"""
+ generate authentication  token after a user has been created and send him/her an email
+"""
+
+
 @receiver(post_save, sender=User)
 def create_auth_token(sender=None, instance=None, created=False, **kwargs):
     if created:
@@ -51,18 +44,23 @@ def create_auth_token(sender=None, instance=None, created=False, **kwargs):
 
 
 # Customer
-class Customer(User):
+class Customer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(null=True, blank=True, upload_to='media/')
 
     def __str__(self) -> str:
-        return f"{self.email}"
+        return f"{self.user.email}"
 
     def get_name(self):
-        return f"{self.first_name}"
+        return f"{self.user.first_name}"
+
+    class Meta:
+        verbose_name_plural = "Customers"
 
 
 # Driver
-class Driver(User):
+class Driver(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(null=True, blank=True, upload_to='media/')
     gender = models.CharField(max_length=1, choices=(
         ("M", "Male"), ("F", "Female")
@@ -70,7 +68,10 @@ class Driver(User):
     dl_number = models.CharField(max_length=10, unique=True)  # license No
 
     def __str__(self) -> str:
-        return f"{self.email}: {self.dl_number}"
+        return f"{self.user.email}: {self.dl_number}"
+
+    class Meta:
+        verbose_name_plural = "Drivers"
 
 
 class PasswordResetToken(models.Model):

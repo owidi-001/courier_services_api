@@ -40,6 +40,19 @@ class UserSchema(AutoSchema):
         return manual_fields + extra_fields
 
 
+class DriverSchema(AutoSchema):
+    def get_manual_fields(self, path, method):
+        extra_fields = []
+        if method.lower() in ['put', 'post']:
+            extra_fields = [
+                coreapi.Field("user", required=False, location="form"),
+                coreapi.Field("dl_number", required=False, location="form"),
+                coreapi.Field("gender", required=False, location="form"),
+            ]
+        manual_fields = super().get_manual_fields(path, method)
+        return manual_fields + extra_fields
+
+
 class UpdatePasswordSchema(AutoSchema):
     def get_manual_fields(self, path, method):
         extra_fields = [

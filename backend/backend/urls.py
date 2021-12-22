@@ -24,10 +24,10 @@ from rest_framework.documentation import include_docs_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('users.urls')),
-    path('', include('shipment.urls')),
+    # path('', include('shipment.urls')),
 
     # Documentation
-    path('docs/', include_docs_urls(title="Courier")),
+    path('', include_docs_urls(title="Courier")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,

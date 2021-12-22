@@ -14,7 +14,8 @@ from rest_framework.views import APIView
 
 from .serializers import *
 
-from .forms import UserLoginForm, UserCreationForm, CustomerProfileUpdateForm, DriverProfileUpdateForm
+from .forms import UserLoginForm, UserCreationForm, CustomerProfileUpdateForm, DriverProfileUpdateForm, \
+    DriverCreationForm
 from .token_generator import password_reset_token
 from .models import Customer, Driver, User, PasswordResetToken
 
@@ -22,9 +23,23 @@ from django.template.loader import render_to_string
 
 from rest_framework.authtoken.models import Token
 
-from .models import EmailThead
+from django.conf import settings
+from django.core.mail import send_mail
+from threading import Thread
+
 # Documentation schema
 from .user_doc_schema import *
+
+
+class EmailThead(Thread):
+    def __init__(self, email_to, message):
+        super().__init__()
+        self.email_to = email_to
+        self.message = message
+
+    def run(self):
+        send_mail("subject", self.message, settings.EMAIL_HOST_USER, self.email_to,
+                  fail_silently=True, html_message=self.message)
 
 
 # users
@@ -45,10 +60,37 @@ class RegisterUser(APIView):
             token = Token.objects.get(user=user).key
             data["token"] = token
             email_to = form.cleaned_data.get("email")
-            # email_to = "kevinalex846@gmail.com"
             password = form.cleaned_data["password"]
             message = render_to_string("registration_email.html", {
-                "password": password, "email": email_to})
+                "email": email_to})
+            EmailThead([email_to], message).start()
+
+            return Response(data, status=200)
+        else:
+            return Response(form.errors, status=400)
+
+
+# users
+@method_decorator(csrf_exempt, name='dispatch')
+class RegisterDriver(APIView):
+    """
+        The User can become a driver by entering the driver licence,and gender.
+    """
+    schema = DriverSchema()
+
+    def post(self, request):
+        form = DriverCreationForm(request.data)
+        if form.is_valid():
+            driver = form.save(commit=False)
+            driver.user = request.user
+            driver.save()
+            data = DriverSerializer(driver).data
+            # create auth token
+            token = Token.objects.get(user=driver).key
+            data["token"] = token
+            email_to = driver.user.email
+            message = render_to_string("registration_email.html", {
+                "email": email_to})
             EmailThead([email_to], message).start()
 
             return Response(data, status=200)
@@ -85,7 +127,7 @@ class UpdatePasswordView(APIView):
     """
     schema = UpdatePasswordSchema()
 
-    authentication_classes = [TokenAuthentication]
+    # authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def put(self, request):
@@ -169,7 +211,7 @@ class CustomerProfileView(APIView):
     """
     schema = UserSchema()
 
-    authentication_classes = [TokenAuthentication]
+    # authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):

@@ -18,9 +18,11 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 
 class DriverSerializer(serializers.ModelSerializer):
+    driver = UserSerializer()
+
     class Meta:
         model = Driver
-        fields = ["id", "phone_number", "dl_number", "national_id_number", "gender"]
+        fields = ["user", "dl_number", "gender"]
 
 
 # API serializer classes

@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import User, Driver
 from django.core.exceptions import ValidationError
 from .form_validators import phone_number_validator, national_id_num_validator, email_validator, license_validator
 
@@ -52,7 +52,7 @@ class UserCreationForm(forms.ModelForm):
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField()
-    password = forms.CharField(max_length=150)
+    password = forms.CharField(max_length=150, widget=forms.PasswordInput)
 
 
 # Customer
@@ -112,3 +112,12 @@ class DriverProfileUpdateForm(forms.Form):
                 "Please provide a valid driving license number")
 
         return dl_number
+
+
+class DriverCreationForm(forms.ModelForm):
+    dl_number = forms.CharField(help_text="Your driver licence number")
+    gender = forms.CharField(help_text="Gender")
+
+    class Meta:
+        model = Driver
+        fields = ["dl_number", "gender"]

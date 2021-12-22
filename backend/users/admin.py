@@ -7,11 +7,11 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ["id", "first_name", "last_name", "email", "dl_number"]
+    list_display = ["user"]
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ["id", "first_name", "last_name", "email"]
+    list_display = ["user"]
 
 
 admin.site.register(User)

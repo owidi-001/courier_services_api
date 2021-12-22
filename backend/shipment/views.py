@@ -11,7 +11,8 @@ from .forms import ShipmentForm
 from .serializers import *
 
 from users.data import SUPPORT_CONTACT
-from users.models import Customer, Driver, User, EmailThead, PasswordResetToken
+from users.models import Customer, Driver, User, PasswordResetToken
+from users.views import  EmailThead
 
 from shipment.models import Shipment, CustomerShipment, Feedback
 
