@@ -3,3 +3,6 @@
 venv
 .vscode
 .idea
+*__pycache__
+/migrations/
+*db.sqlite3
