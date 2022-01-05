@@ -217,8 +217,8 @@ class UserProfileView(APIView):
         """
         Returns user profile
         """
-        user_profile = get_object_or_404(User, user=request.user)
-        response = UserSerializer(user_profile).data
+        # user_profile = get_object_or_404(User, user=request.user)
+        response = UserSerializer(request.user).data
         return Response(data=response, status=200)
 
     def put(self, request):
