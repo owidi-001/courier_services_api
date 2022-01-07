@@ -11,7 +11,7 @@ class Config:
     EMAIL_HOST_PASSWORD = "pass"
     PORT = 465
     development = True
-    ALLOWED_HOSTS = ["127.0.0.1"]
+    ALLOWED_HOSTS = ["127.0.0.1","courier-ke.herokuapp.com"]
 
 
 config = Config()
