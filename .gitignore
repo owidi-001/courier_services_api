@@ -1,0 +1,8 @@
+/backend/.env
+/backend/backend/secrets.py
+env
+.vscode
+.idea
+*__pycache__
+/migrations/
+*db.sqlite3
