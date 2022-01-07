@@ -8,7 +8,7 @@ class RegistrationSchema(AutoSchema):
         if method.lower() == 'post':
             extra_fields = [
                 coreapi.Field("email", required=True, location="form"),
-                coreapi.Field("national_id", required=True, location="form"),
+                coreapi.Field("username", required=True, location="form"),
                 coreapi.Field("phone_number", required=True, location="form",
                               description="must start with +254... eg +2547 xxxx xxxx"),
                 coreapi.Field("password", required=True, location="form"),
@@ -32,7 +32,7 @@ class UserSchema(AutoSchema):
             extra_fields = [
                 coreapi.Field("email", required=False, location="form"),
                 coreapi.Field("phone_number", required=False, location="form"),
-                coreapi.Field("national_id", required=False,
+                coreapi.Field("username", required=False,
                               location="form", schema=None),
                 coreapi.Field("avatar", required=False, location="form"),
 
