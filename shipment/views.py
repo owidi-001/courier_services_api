@@ -1,3 +1,4 @@
+from django.db.models.fields import json
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -8,14 +9,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import ShipmentForm
-from .models import Origin, Destination
 from .serializers import *
 
 from users.data import SUPPORT_CONTACT
 from users.models import Driver, User, PasswordResetToken
 from users.views import EmailThead
 
-from .models import Shipment, CustomerShipment, Feedback
+from .models import Location, Shipment, CustomerShipment, Feedback
 
 # Documentation schema
 from .shipment_doc_schema import *
@@ -24,7 +24,8 @@ from .shipment_doc_schema import *
 # shipment
 @method_decorator(csrf_exempt, name='dispatch')
 class ShipmentView(APIView):
-    permission_classes = (IsAuthenticated,)  # Protect view to only the authenticated
+    # Protect view to only the authenticated
+    permission_classes = (IsAuthenticated,)
     """
     Returns all shipments which are active and not completed
     """
@@ -42,37 +43,23 @@ class ShipmentView(APIView):
         """
          The client fills in the shipment data
          """
-        form = ShipmentForm(request.data)
-        if form.is_valid():
-            customer = get_object_or_404(User, user=request.user)
-            # create cargo
-            cargo = Cargo.objects.get_or_create(owner=customer, size=form.cleaned_data["size"],
-                                                nature=form.cleaned_data["nature"])
-            cargo.save()
-            # Create origin
-            origin = Origin.objects.get_or_create(lat_position=form.cleaned_data["origin_lat"],
-                                                  long_position=form.cleaned_data["origin_long"])
-            origin.save()
-            # create destination
-            destination = Destination.objects.get_or_create(lat_position=form.cleaned_data["dest_lat"],
-                                                            long_position=form.cleaned_data["dest_long"])
-            destination.save()
+        shimpment_serializer = ShipmentSerializer(data=request.data)
+        if shimpment_serializer.is_valid():
 
-            # Book the shipment
-            shipment = Shipment.objects.get_or_create(cargo=cargo, origin=origin, destination=destination,
-                                                      vehicle=form.cleaned_data["vehicle"])
-            shipment.save()
+           
 
-            booking, _ = CustomerShipment.objects.get_or_create(customer=request.user, shipment=shipment, )
-            booking.status = "P"
-            booking.save()
-            message = f"Dear {customer}, Your shipment request from {shipment.origin} to {shipment.destination} has " \
-                      f"been received and is waiting affirmation. This will take at maximum 2 mins. "
-            EmailThead([customer.email, "admin@gmail.com"], message)
+            # booking, _ = CustomerShipment.objects.get_or_create(
+            #     customer=request.user, shipment=shipment, )
 
+            # booking.save()
+            # message = f"Dear {customer}, Your shipment request from {shipment.origin} to {shipment.destination} has " \
+            #           f"been received and is waiting affirmation. This will take at maximum 2 mins. "
+            # EmailThead([customer.email, "admin@gmail.com"], message)
+            booking = shimpment_serializer.save(request)
+            
             data = CustomerShipmentSerializer(booking).data
             return Response(data, status=200)
-        return Response(form.errors, status=400)
+        return Response(shimpment_serializer.errors, status=400)
 
     def patch(self, request):
         """
@@ -85,7 +72,8 @@ class ShipmentView(APIView):
         customer_booking.save()
         # Mail customer to affirm shipment cancellation
         message = f"You have successfully cancelled the shipment request"
-        EmailThead([customer_booking.customer.email, "courier_admin@gmail.com"], message)
+        EmailThead([customer_booking.customer.email,
+                   "courier_admin@gmail.com"], message)
         return Response(CustomerShipmentSerializer(customer_booking).data)
 
 
@@ -105,7 +93,8 @@ class DriverShipmentView(APIView):
         query = Shipment.objects.filter(status="A")
         driver = get_object_or_404(Driver, user=request.user)
         shipments = []
-        [shipments.append(shipment) for shipment in query if shipment.vehicle.driver == driver]
+        [shipments.append(shipment)
+         for shipment in query if shipment.vehicle.driver == driver]
         # shipments= CustomerShipment.objects.filter(driver=driver)  # Filter shipments belonging to the driver
 
         return Response(CustomerShipmentSerializer(shipments, many=True).data, status=200)
@@ -121,7 +110,8 @@ class DriverShipmentView(APIView):
         customer_booking.save()
         # Mail customer to affirm shipment in progress.
         message = f"{request.user} has confirmed your shipment set fom {customer_booking.shipment.origin} to {customer_booking.shipment.destination}"
-        EmailThead([customer_booking.customer.email, "courier_admin@gmail.com"], message)
+        EmailThead([customer_booking.customer.email,
+                   "courier_admin@gmail.com"], message)
         return Response(CustomerShipmentSerializer(customer_booking).data)
 
     def patch(self, request):
@@ -136,7 +126,8 @@ class DriverShipmentView(APIView):
         # Mail customer to affirm shipment is completed.
         message = f"Your shipment if complete.\nWe value your feedback. Please leave us a review. Thank you for " \
                   f"trusting us. "
-        EmailThead([customer_shipment.customer.email, "courier_admin@gmail.com"], message)
+        EmailThead([customer_shipment.customer.email,
+                   "courier_admin@gmail.com"], message)
         return Response(CustomerShipmentSerializer(customer_shipment).data)
 
 

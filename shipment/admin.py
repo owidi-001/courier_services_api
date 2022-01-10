@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Cargo, Origin, Destination, Vehicle, Shipment, CustomerShipment, Feedback
+from .models import Cargo, Location,  Vehicle, Shipment, CustomerShipment, Feedback
 
 
 class CargoAdmin(admin.ModelAdmin):
@@ -19,8 +19,7 @@ class CustomerShipmentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Cargo, CargoAdmin)
-admin.site.register(Origin)
-admin.site.register(Destination)
+admin.site.register(Location)
 admin.site.register(Vehicle, VehicleAdmin)
 admin.site.register(Shipment, ShipmentAdmin)
 admin.site.register(CustomerShipment, CustomerShipmentAdmin)
