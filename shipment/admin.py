@@ -7,7 +7,7 @@ class CargoAdmin(admin.ModelAdmin):
 
 
 class ShipmentAdmin(admin.ModelAdmin):
-    list_display = ["cargo", "vehicle", "origin", "destination", "status"]
+    list_display = ["cargo", "vehicle", "origin", "destination", "status","shipment_date"]
 
 
 class VehicleAdmin(admin.ModelAdmin):

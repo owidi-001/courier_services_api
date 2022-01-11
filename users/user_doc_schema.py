@@ -1,5 +1,6 @@
 from rest_framework.schemas import AutoSchema
 import coreapi
+import coreschema
 
 
 class RegistrationSchema(AutoSchema):
@@ -7,10 +8,12 @@ class RegistrationSchema(AutoSchema):
         extra_fields = []
         if method.lower() == 'post':
             extra_fields = [
-                coreapi.Field("email", required=True, location="form"),
+                coreapi.Field("email", required=True,
+                              location="form", schema=coreschema.String()),
                 coreapi.Field("national_id", required=True, location="form"),
                 coreapi.Field("phone_number", required=True, location="form",
-                              description="must start with +254... eg +2547 xxxx xxxx"),
+                              description="must start with +254... eg +2547 xxxx xxxx",
+                              schema=coreschema.String(pattern=r"\+254\w{9}"),),
                 coreapi.Field("password", required=True, location="form"),
             ]
         manual_fields = super().get_manual_fields(path, method)
@@ -67,6 +70,7 @@ class UpdatePasswordSchema(AutoSchema):
         ]
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields
+
 
 """
 For resetting password/Forgot password
