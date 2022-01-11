@@ -8,7 +8,7 @@ class Config:
     EMAIL_USE_TLS = True
     EMAIL_HOST = "smtp.gmail.com"
     EMAIL_HOST_USER = "mrmarangi4@gmail.com"
-    EMAIL_HOST_PASSWORD = "pass"
+    EMAIL_HOST_PASSWORD = "rwgdxttcirhnwzrm"
     PORT = 465
     development = True
     ALLOWED_HOSTS = ["127.0.0.1","courier-ke.herokuapp.com"]
