@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class DriverSerializer(serializers.ModelSerializer):
-    driver = UserSerializer()
+    user = UserSerializer()
 
     class Meta:
         model = Driver
@@ -33,6 +33,7 @@ class UpdatePasswordSerializer(serializers.Serializer):
     """
     Serializer for password change endpoint .
     """
+
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
 
@@ -41,6 +42,7 @@ class PasswordSerializer(serializers.Serializer):
     """
     Serializer for password reset endpoint.
     """
+
     email = serializers.EmailField(required=True)
 
 

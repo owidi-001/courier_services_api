@@ -14,9 +14,11 @@ class CargoSerializer(serializers.ModelSerializer):
 
 
 class VehicleSerializer(serializers.ModelSerializer):
+    driver = DriverSerializer()
     class Meta:
         model = Vehicle
-        fields = ["vehicle_registration_number"]
+        fields = "__all__"
+        read_only_fields = ["id"]
 
 
 class LocationSerializer(serializers.ModelSerializer):

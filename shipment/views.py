@@ -74,6 +74,27 @@ class ShipmentView(APIView):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
+class VehicleView(APIView):
+    # authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    """
+    Returns all vehicle available
+    """
+
+    def get(self, request):
+        """
+        Returns all vehicle available
+        """
+        query = Vehicle.objects.all()
+
+        return Response(
+            VehicleSerializer(query, many=True).data,
+            status=200,
+        )
+
+
+@method_decorator(csrf_exempt, name="dispatch")
 class DriverShipmentView(APIView):
     """
     Driver get shipment requests
