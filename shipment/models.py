@@ -7,11 +7,27 @@ from users.models import Driver, User
 from users.views import EmailThead
 
 
+class Size(models.TextChoices):
+    Large = "L"
+    Small = "S"
+    Medium = "M"
+
+
+
 class Cargo(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    size = models.IntegerField(default=1)
-    nature = models.CharField(max_length=100, help_text="What's the nature of your cargo?",
-                              choices=(("F", "fragile"), ("NF", "Not Fragile")))
+    size = models.CharField(
+        choices=Size.choices,
+        max_length=1,
+    )
+    nature = models.CharField(
+        max_length=2,
+        help_text="What's the nature of your cargo?",
+        choices=(
+            ("F", "fragile"),
+            ("NF", "Not Fragile"),
+        ),
+    )
 
     class Meta:
         verbose_name_plural = "cargo"
@@ -21,34 +37,47 @@ class Cargo(models.Model):
 
 
 # Shipment pick point
-class Origin(models.Model):
-    long_position = models.CharField(max_length=50)
-    lat_position = models.CharField(max_length=50)
+class Location(models.Model):
+    lng = models.DecimalField(
+        null=True,
+        max_digits=15,
+        decimal_places=10,
+        blank=True,
+    )
+    lat = models.DecimalField(
+        null=True,
+        max_digits=15,
+        decimal_places=10,
+        blank=True,
+    )
+    name = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    street = models.CharField(max_length=100)
 
     class Meta:
-        verbose_name_plural = "origin"
+        verbose_name_plural = "location"
 
     def __str__(self):
-        return f"Lat={self.lat_position},Lon={self.long_position}"
-
-
-class Destination(models.Model):
-    long_position = models.CharField(max_length=50)
-    lat_position = models.CharField(max_length=50)
-
-    class Meta:
-        verbose_name_plural = "destination"
-
-    def __str__(self):
-        return f"Lat={self.lat_position},Lon={self.long_position}"
+        return f"{self.street},{self.city},Kenya"
 
 
 class Vehicle(models.Model):
-    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)  # One driver can own/drive many vehicles
-    carrier_type = models.CharField(max_length=100, help_text="vehicle carriage type",
-                                    choices=(("L", "Lorry"), ("P", "Pickup"), ("B", "MotorBike")))
-    carrier_capacity = models.CharField(max_length=100, help_text="Approximate vehicle carrying capacity",
-                                        choices=(("L", "Large"), ("M", "Medium"), ("S", "Small")))
+    # One driver can own/drive many vehicles
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    carrier_type = models.CharField(
+        max_length=100,
+        help_text="vehicle carriage type",
+        choices=(
+            ("L", "Lorry"),
+            ("P", "Pickup"),
+            ("B", "MotorBike"),
+        ),
+    )
+    carrier_capacity = models.CharField(
+        max_length=100,
+        help_text="Approximate vehicle carrying capacity",
+        choices=Size.choices,
+    )
     vehicle_registration_number = models.CharField(max_length=20, unique=True)
     model = models.CharField(max_length=100, help_text="vehicle model type")
 
@@ -61,15 +90,25 @@ class Vehicle(models.Model):
 
 class Shipment(models.Model):
     cargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
-    origin = models.ForeignKey(Origin, on_delete=models.PROTECT)
-    destination = models.ForeignKey(Destination, on_delete=models.PROTECT)
+    origin = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name="pickup"
+    )
+    destination = models.ForeignKey(
+        Location, on_delete=models.PROTECT, related_name="dropoff"
+    )
     vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
-    status = models.CharField(max_length=1, choices=(
-        ("A", "Active"),
-        ("P", "Pending"),
-        ("C", "Canceled"),
-        ("F", "fulfilled")), default="P")
-    shipment_date = models.DateTimeField(null=True, blank=True, default=timezone.now)
+    status = models.CharField(
+        max_length=1,
+        choices=(
+            ("A", "Active"),
+            ("P", "Pending"),
+            ("C", "Canceled"),
+            ("F", "fulfilled"),
+        ),
+        default="P",
+    )
+    shipment_date = models.DateTimeField(auto_now_add=True)
+    price = models.IntegerField(default=0)
 
     def __str__(self) -> str:
         return f"{self.origin} - {self.destination} by {self.vehicle}"
@@ -93,12 +132,14 @@ def send_customer_notification(sender=None, instance=None, created=False, **kwar
     try:
         if instance.status == "F":
             clients = CustomerShipment.objects.filter(
-                shipment=instance.shipment, status="F")
+                shipment=instance.shipment, status="F"
+            )
 
             message = "The cargo arrived at their destination."
             # email notification
-            EmailThead([item.customer.email for item in clients] +
-                       ["admin@gmail.com"], message)
+            EmailThead(
+                [item.customer.email for item in clients] + ["admin@gmail.com"], message
+            )
 
     except:
         pass
