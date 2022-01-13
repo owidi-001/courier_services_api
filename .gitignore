@@ -1,5 +1,5 @@
 /backend/.env
-/backend/backend/secrets.py
+backend/secrets.py
 env
 .vscode
 .idea

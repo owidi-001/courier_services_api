@@ -1,7 +1,10 @@
+from datetime import datetime
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from shipment.utils import coordinateDistance
+from django.core.exceptions import ValidationError
 
 from users.models import Driver, User
 from users.views import EmailThead
@@ -11,7 +14,6 @@ class Size(models.TextChoices):
     Large = "L"
     Small = "S"
     Medium = "M"
-
 
 
 class Cargo(models.Model):
@@ -38,16 +40,12 @@ class Cargo(models.Model):
 
 # Shipment pick point
 class Location(models.Model):
-    lng = models.DecimalField(
+    lng = models.FloatField(
         null=True,
-        max_digits=15,
-        decimal_places=10,
         blank=True,
     )
-    lat = models.DecimalField(
+    lat = models.FloatField(
         null=True,
-        max_digits=15,
-        decimal_places=10,
         blank=True,
     )
     name = models.CharField(max_length=100)
@@ -78,8 +76,13 @@ class Vehicle(models.Model):
         help_text="Approximate vehicle carrying capacity",
         choices=Size.choices,
     )
-    vehicle_registration_number = models.CharField(max_length=20, unique=True)
-    model = models.CharField(max_length=100, help_text="vehicle model type")
+    vehicle_registration_number = models.CharField(
+        max_length=20,
+        unique=True,
+    )
+    charge_rate = models.FloatField(
+        help_text="The price a driver charges per km in KSH",
+    )
 
     class Meta:
         verbose_name_plural = "Vehicle"
@@ -89,14 +92,25 @@ class Vehicle(models.Model):
 
 
 class Shipment(models.Model):
-    cargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
+    cargo = models.ForeignKey(
+        Cargo,
+        on_delete=models.CASCADE,
+    )
     origin = models.ForeignKey(
-        Location, on_delete=models.PROTECT, related_name="pickup"
+        Location,
+        on_delete=models.PROTECT,
+        related_name="pickup",
     )
     destination = models.ForeignKey(
-        Location, on_delete=models.PROTECT, related_name="dropoff"
+        Location,
+        on_delete=models.PROTECT,
+        related_name="dropoff",
     )
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
+    vehicle = models.ForeignKey(
+        Vehicle,
+        on_delete=models.SET_NULL,
+        null=True,
+    )
     status = models.CharField(
         max_length=1,
         choices=(
@@ -107,17 +121,55 @@ class Shipment(models.Model):
         ),
         default="P",
     )
-    shipment_date = models.DateTimeField(auto_now_add=True)
+    shipment_date = models.DateTimeField(
+        auto_now_add=True,
+    )
     price = models.IntegerField(default=0)
+    rating = models.FloatField(
+        null=True,
+        blank=True,
+    )
 
     def __str__(self) -> str:
         return f"{self.origin} - {self.destination} by {self.vehicle}"
+
+    @property
+    def date(self):
+        # date_time = datetime.fromisoformat(self.shipment_date)
+        return self.shipment_date.strftime("%d %B, %Y")
+
+    @property
+    def distance(self) -> float:
+        return self.price / self.vehicle.charge_rate
+
+    def save(self, distance=None, *args, **kwargs):
+        if self.id is None:
+            #perform this operation only when the object is created for the first time
+            # distance will help to calcute  price
+            try:
+                distance_ = distance or coordinateDistance(
+                    self.origin.lat,
+                    self.origin.lng,
+                    self.destination.lat,
+                    self.destination.lng,
+                )
+            except:
+                raise ValidationError(
+                    """
+                Calculated distance between origin and destination in km 
+                if the value is left empty, origin lat, lng
+                and destination origin lat,lng must be provided
+                            
+                    """
+                )
+            # calculate price based on the distance and vehicle.charge_rate per km
+            self.price = distance_ * self.vehicle.charge_rate
+        super().save(*args, **kwargs)
 
 
 class CustomerShipment(models.Model):
     shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE, null=True)
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
-    confirmed = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("shipment", "customer")

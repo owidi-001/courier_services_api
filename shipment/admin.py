@@ -1,21 +1,39 @@
 from django.contrib import admin
-from .models import Cargo, Location,  Vehicle, Shipment, CustomerShipment, Feedback
+from .models import Cargo, Location, Vehicle, Shipment, CustomerShipment, Feedback
 
 
 class CargoAdmin(admin.ModelAdmin):
-    list_display = ["owner", "size", "nature"]
+    list_display = [
+        "owner",
+        "size",
+        "nature",
+    ]
 
 
 class ShipmentAdmin(admin.ModelAdmin):
-    list_display = ["cargo", "vehicle", "origin", "destination", "status","shipment_date"]
+    list_display = [
+        "cargo",
+        "vehicle",
+        "origin",
+        "destination",
+        "status",
+        "shipment_date",
+        "rating",
+    ]
 
 
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ["vehicle_registration_number", "model"]
+    list_display = [
+        "vehicle_registration_number",
+        "model",
+    ]
 
 
 class CustomerShipmentAdmin(admin.ModelAdmin):
-    list_display = ["customer", "shipment"]
+    list_display = [
+        "customer",
+        "shipment",
+    ]
 
 
 admin.site.register(Cargo, CargoAdmin)

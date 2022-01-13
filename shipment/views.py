@@ -62,9 +62,8 @@ class ShipmentView(APIView):
         """
         shipment_id = request.data.get("shipment_id")
         customer_shipment = get_object_or_404(CustomerShipment, id=shipment_id)
-        customer_shipment.status = "C"
-        customer_shipment.vehicle = None  # Cancels the vehicle booked
-        customer_shipment.save()
+        customer_shipment.shipment.status = "C"
+        customer_shipment.shipment.save()
         # Mail customer to affirm shipment cancellation
         message = f"You have successfully cancelled the shipment request"
         EmailThead(
@@ -162,15 +161,27 @@ class DriverShipmentView(APIView):
 class FeedbackView(APIView):
     schema = FeedbackSchema()
 
-    # authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        """Provide overal feed back on our services"""
         message = request.data.get("message")
         if message:
             feedback = Feedback(user=request.user, message=message)
             feedback.save()
         return Response({"message": "Thank you for your feed back"}, status=201)
+
+    def put(self, request):
+        """Rate a shipment delivery"""
+        try:
+            rating = float(request.data.get("rating"))
+            shipmentId = int(request.data.get("shipment_id"))
+            shipment = Shipment.objects.get(id=shipmentId)
+            shipment.rating = rating
+            shipment.save()
+        except:
+            return Response("An error occured")
+        return Response({"message": "Thank you for your feed back"})
 
 
 @api_view(["GET"])
