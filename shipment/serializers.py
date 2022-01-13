@@ -1,4 +1,3 @@
-from typing_extensions import Required
 from django.db.models import fields
 from rest_framework import serializers
 from .models import Cargo, Location, Vehicle, Shipment, CustomerShipment, User
@@ -56,7 +55,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
 
         read_only_fields = ["date", "id"]
 
-    def save(self, request):
+    def save(self, request) -> CustomerShipment:
         cargo, _ = Cargo.objects.get_or_create(
             **self.validated_data["cargo"], owner=request.user
         )
