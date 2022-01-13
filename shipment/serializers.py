@@ -51,9 +51,10 @@ class ShipmentSerializer(serializers.ModelSerializer):
             "status",
             "date",
             "distance",
+            "rating"
         ]
 
-        read_only_fields = ["date", "id"]
+        read_only_fields = ["date", "id","price"]
 
     def save(self, request) -> CustomerShipment:
         cargo, _ = Cargo.objects.get_or_create(
