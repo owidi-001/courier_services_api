@@ -56,7 +56,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
 
         read_only_fields = ["date", "id"]
 
-    def save(self, request) -> CustomerShipment:
+    def save(self, request):
         cargo, _ = Cargo.objects.get_or_create(
             **self.validated_data["cargo"], owner=request.user
         )
