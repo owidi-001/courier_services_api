@@ -1,9 +1,9 @@
+from typing_extensions import Required
 from django.db.models import fields
-
 from rest_framework import serializers
 from .models import Cargo, Location, Vehicle, Shipment, CustomerShipment, User
-
 from users.serializers import UserSerializer, DriverSerializer
+from datetime import datetime
 
 
 # SHIPMENT
@@ -15,6 +15,7 @@ class CargoSerializer(serializers.ModelSerializer):
 
 class VehicleSerializer(serializers.ModelSerializer):
     driver = DriverSerializer()
+
     class Meta:
         model = Vehicle
         fields = "__all__"
@@ -37,6 +38,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
     cargo = CargoSerializer()
     origin = LocationSerializer()
     destination = LocationSerializer()
+    distance = serializers.FloatField(required=False)
 
     class Meta:
         model = Shipment
@@ -48,9 +50,11 @@ class ShipmentSerializer(serializers.ModelSerializer):
             "vehicle",
             "price",
             "status",
-            "shipment_date",
+            "date",
+            "distance",
         ]
-        read_only_fields = ["shipment_date", "id"]
+
+        read_only_fields = ["date", "id"]
 
     def save(self, request) -> CustomerShipment:
         cargo, _ = Cargo.objects.get_or_create(
@@ -64,12 +68,15 @@ class ShipmentSerializer(serializers.ModelSerializer):
         destination.save()
         origin.save()
         # TODO: work out price calculations
-        shipment, _ = Shipment.objects.get_or_create(
+        shipment = Shipment(
             origin=origin,
             destination=destination,
             cargo=cargo,
+            vehicle=self.validated_data["vehicle"],
         )
-        shipment.save()
+        shipment.save(
+            distance=self.validated_data["distance"],
+        )
         customer_shipment, _ = CustomerShipment.objects.get_or_create(
             shipment=shipment,
             customer=request.user,

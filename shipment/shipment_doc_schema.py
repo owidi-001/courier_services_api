@@ -51,14 +51,28 @@ class ShipmentSchema(AutoSchema):
                         description="Vehicle id",
                     ),
                 ),
+                coreapi.Field(
+                    "distance",
+                    required=False,
+                    location="form",
+                    schema=coreschema.Number(
+                        description="""
+                        Calculated distance between origin and destination in km <br> 
+                        if the value is left empty, origin <code>lat</code>,<code>lng</code> 
+                        and destination origin <code>lat</code>,<code>lng</code> must be provided
+                        """,
+                    ),
+                ),
             ]
-        if method.lower() == "put":
+        if method.lower() == "patch":
             extra_fields = [
                 coreapi.Field(
-                    "book_id",
+                    "shipment_id",
                     required=True,
                     location="form",
-                    description="id of booking to cancel",
+                    schema=coreschema.Integer(
+                        description="<code>id</code> of shipment to cancel",
+                    ),
                 ),
             ]
         manual_fields = super().get_manual_fields(path, method)
@@ -81,8 +95,27 @@ class FeedbackSchema(AutoSchema):
         extra_fields = []
         if method.lower() == "post":
             extra_fields = [
-                coreapi.Field("message", required=True, location="form"),
+                coreapi.Field(
+                    "message",
+                    required=True,
+                    location="form",
+                    schema=coreschema.String(format="textarea"),
+                ),
             ]
-
+        if method.lower() == "put":
+            extra_fields = [
+                coreapi.Field(
+                    "shipment_id",
+                    required=True,
+                    location="form",
+                    schema=coreschema.Integer(),
+                ),
+                coreapi.Field(
+                    "rating",
+                    required=True,
+                    location="form",
+                    schema=coreschema.Number(maximum=5, minimum=0),
+                ),
+            ]
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields
