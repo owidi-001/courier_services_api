@@ -31,6 +31,7 @@ class VehicleAdmin(admin.ModelAdmin):
 
 class CustomerShipmentAdmin(admin.ModelAdmin):
     list_display = [
+        "order_number",
         "customer",
         "shipment",
     ]

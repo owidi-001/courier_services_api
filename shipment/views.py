@@ -2,7 +2,6 @@ from django.db.models.fields import json
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -14,10 +13,9 @@ from users.permision import IsDriver
 from .serializers import *
 
 from users.data import SUPPORT_CONTACT
-from users.models import Driver, User, PasswordResetToken
 from users.views import EmailThead
 
-from .models import Location, Shipment, CustomerShipment, Feedback
+from .models import Shipment, CustomerShipment, Feedback
 
 # Documentation schema
 from .shipment_doc_schema import *
@@ -110,7 +108,7 @@ class DriverShipmentRequestView(APIView):
         Returns all shipments
         """
         query = CustomerShipment.objects.filter(shipment__status="A")
-        print(request.driver)
+
         return Response(
             CustomerShipmentSerializer(query, many=True).data,
         )
@@ -165,18 +163,16 @@ class FeedbackView(APIView):
 
     def post(self, request):
         """Rate a shipment delivery"""
-        try:
-            rating = float(request.data.get("rating"))
-            shipmentId = int(request.data.get("shipment_id"))
-            shipment = Shipment.objects.get(id=shipmentId)
-            shipment.rating = rating
-            shipment.save()
-            message = request.data.get("message")
-            if message:
-                feedback = Feedback(user=request.user, message=message)
-                feedback.save()
-        except:
-            return Response("An error occured")
+        rating = request.data.get("rating")
+        shipmentId = request.data.get("shipment_id")
+        shipment = get_object_or_404(Shipment, id=shipmentId)
+        shipment.rating = rating
+        shipment.save()
+        message = request.data.get("message")
+        if message:
+            feedback = Feedback(user=request.user, message=message, shipment=shipment)
+            feedback.save()
+
         return Response({"message": "Thank you for your feed back"})
 
 

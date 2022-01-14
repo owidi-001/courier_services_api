@@ -171,7 +171,7 @@ class Shipment(models.Model):
 class CustomerShipment(models.Model):
     shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE, null=True)
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
-    order_number = models.CharField(max_length=10, blank=True)
+    order_number = models.CharField(max_length=10)
 
     def save(self, *args, **kwargs):
         if self.id is None:
