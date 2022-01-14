@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from shipment.utils import coordinateDistance
+from shipment.utils import coordinateDistance, randomString
 from django.core.exceptions import ValidationError
 
 from users.models import Driver, User
@@ -124,7 +124,7 @@ class Shipment(models.Model):
     shipment_date = models.DateTimeField(
         auto_now_add=True,
     )
-    price = models.IntegerField(default=0)
+    price = models.IntegerField()
     rating = models.FloatField(
         null=True,
         blank=True,
@@ -144,7 +144,7 @@ class Shipment(models.Model):
 
     def save(self, distance=None, *args, **kwargs):
         if self.id is None:
-            #perform this operation only when the object is created for the first time
+            # perform this operation only when the object is created for the first time
             # distance will help to calcute  price
             try:
                 distance_ = distance or coordinateDistance(
@@ -164,12 +164,21 @@ class Shipment(models.Model):
                 )
             # calculate price based on the distance and vehicle.charge_rate per km
             self.price = distance_ * self.vehicle.charge_rate
+
         super().save(*args, **kwargs)
 
 
 class CustomerShipment(models.Model):
     shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE, null=True)
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    order_number = models.CharField(max_length=10, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.id is None:
+            # generate order number  only once,
+            #  when the object is created for the first time
+            self.order_number = randomString()
+        super().save(args, kwargs)
 
     class Meta:
         unique_together = ("shipment", "customer")

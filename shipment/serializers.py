@@ -51,10 +51,10 @@ class ShipmentSerializer(serializers.ModelSerializer):
             "status",
             "date",
             "distance",
-            "rating"
+            "rating",
         ]
 
-        read_only_fields = ["date", "id","price"]
+        read_only_fields = ["date", "id", "price"]
 
     def save(self, request) -> CustomerShipment:
         cargo, _ = Cargo.objects.get_or_create(
@@ -67,7 +67,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
         cargo.save()
         destination.save()
         origin.save()
-        # TODO: work out price calculations
+
         shipment = Shipment(
             origin=origin,
             destination=destination,
