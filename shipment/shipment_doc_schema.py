@@ -96,15 +96,6 @@ class FeedbackSchema(AutoSchema):
         if method.lower() == "post":
             extra_fields = [
                 coreapi.Field(
-                    "message",
-                    required=True,
-                    location="form",
-                    schema=coreschema.String(format="textarea"),
-                ),
-            ]
-        if method.lower() == "put":
-            extra_fields = [
-                coreapi.Field(
                     "shipment_id",
                     required=True,
                     location="form",
@@ -116,6 +107,13 @@ class FeedbackSchema(AutoSchema):
                     location="form",
                     schema=coreschema.Number(maximum=5, minimum=0),
                 ),
+                coreapi.Field(
+                    "message",
+                    required=True,
+                    location="form",
+                    schema=coreschema.String(format="textarea"),
+                ),
             ]
+
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields

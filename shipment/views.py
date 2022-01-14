@@ -8,6 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from users.permision import IsDriver
+
 
 from .serializers import *
 
@@ -94,31 +96,23 @@ class VehicleView(APIView):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class DriverShipmentView(APIView):
+class DriverShipmentRequestView(APIView):
     """
     Driver get shipment requests
     """
 
     schema = DriverShipmentSchema()
     # authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsDriver]
 
     def get(self, request):
         """
-        Returns all driver active shipments
+        Returns all shipments
         """
-        query = Shipment.objects.filter(status="A")
-        driver = get_object_or_404(Driver, user=request.user)
-        shipments = []
-        [
-            shipments.append(shipment)
-            for shipment in query
-            if shipment.vehicle.driver == driver
-        ]
-        # shipments= CustomerShipment.objects.filter(driver=driver)  # Filter shipments belonging to the driver
-
+        query = CustomerShipment.objects.filter(shipment__status="A")
+        print(request.driver)
         return Response(
-            CustomerShipmentSerializer(shipments, many=True).data, status=200
+            CustomerShipmentSerializer(query, many=True).data,
         )
 
     def put(self, request):
@@ -152,9 +146,15 @@ class DriverShipmentView(APIView):
             f"trusting us. "
         )
         EmailThead(
-            [customer_shipment.customer.email, "courier_admin@gmail.com"], message
+            [
+                customer_shipment.customer.email,
+                "courier_admin@gmail.com",
+            ],
+            message,
         )
-        return Response(CustomerShipmentSerializer(customer_shipment).data)
+        return Response(
+            CustomerShipmentSerializer(customer_shipment).data,
+        )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -164,14 +164,6 @@ class FeedbackView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        """Provide overal feed back on our services"""
-        message = request.data.get("message")
-        if message:
-            feedback = Feedback(user=request.user, message=message)
-            feedback.save()
-        return Response({"message": "Thank you for your feed back"}, status=201)
-
-    def put(self, request):
         """Rate a shipment delivery"""
         try:
             rating = float(request.data.get("rating"))
@@ -179,6 +171,10 @@ class FeedbackView(APIView):
             shipment = Shipment.objects.get(id=shipmentId)
             shipment.rating = rating
             shipment.save()
+            message = request.data.get("message")
+            if message:
+                feedback = Feedback(user=request.user, message=message)
+                feedback.save()
         except:
             return Response("An error occured")
         return Response({"message": "Thank you for your feed back"})
