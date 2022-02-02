@@ -8,10 +8,10 @@ class RegistrationSchema(AutoSchema):
         extra_fields = []
         if method.lower() == "post":
             extra_fields = [
+                coreapi.Field("username", required=True, location="form"),
                 coreapi.Field(
                     "email", required=True, location="form", schema=coreschema.String()
                 ),
-                coreapi.Field("national_id", required=True, location="form"),
                 coreapi.Field(
                     "phone_number",
                     required=True,
@@ -22,6 +22,7 @@ class RegistrationSchema(AutoSchema):
                     ),
                 ),
                 coreapi.Field("password", required=True, location="form"),
+                coreapi.Field("is_driver", required=False, location="form", schema=coreschema.Boolean(default=False)),
             ]
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields
@@ -92,7 +93,6 @@ class ResetPasswordSchema(AutoSchema):
         ]
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields
-
 
 # class ResetPasswordSchema(AutoSchema):
 #     def get_manual_fields(self, path, method):

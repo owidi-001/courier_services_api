@@ -40,11 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
+    # 3rd party
+    'rest_framework',
+    'drf_yasg',
+
+    # local
     'users',
     'shipment',
-    'rest_framework',
-    # Documentation
-    'drf_yasg',
+    'driver',
+    'client',
+
 ]
 
 # rest framework documentation

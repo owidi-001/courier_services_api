@@ -14,10 +14,11 @@ def upload(instance, filename):
 
 
 class User(AbstractUser):
-    username = models.CharField(max_length=30,blank=False,unique=True)
+    username = models.CharField(max_length=30, blank=False, unique=True)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=13, null=False, blank=False, unique=True)
     avatar = models.ImageField(null=True, blank=True, upload_to='media/')
+    is_driver = models.BooleanField(default=False, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "phone_number"]
@@ -36,22 +37,6 @@ class User(AbstractUser):
 def create_auth_token(sender=None, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
-
-
-# Driver
-class Driver(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    gender = models.CharField(max_length=1, choices=(
-        ("M", "Male"), ("F", "Female")
-    ))
-    dl_number = models.CharField(max_length=10, unique=True)  # license No
-
-    def __str__(self) -> str:
-        return f"{self.user.email}: {self.dl_number}"
-
-    class Meta:
-        verbose_name_plural = "Drivers"
 
 
 class PasswordResetToken(models.Model):

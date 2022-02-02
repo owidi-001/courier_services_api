@@ -14,10 +14,9 @@ from rest_framework.views import APIView
 
 from .serializers import *
 
-from .forms import UserLoginForm, UserCreationForm, DriverProfileUpdateForm, \
-    DriverCreationForm, UserProfileUpdateForm
+from .forms import UserLoginForm, UserCreationForm
 from .token_generator import password_reset_token
-from .models import Driver, User, PasswordResetToken
+from .models import User, PasswordResetToken
 
 from django.template.loader import render_to_string
 
@@ -53,6 +52,7 @@ class RegisterUser(APIView):
 
     def post(self, request):
         form = UserCreationForm(request.data)
+
         if form.is_valid():
             user = form.save()
             data = UserSerializer(user).data
@@ -60,34 +60,6 @@ class RegisterUser(APIView):
             token = Token.objects.get(user=user).key
             data["token"] = token
             email_to = form.cleaned_data.get("email")
-            message = render_to_string("registration_email.html", {
-                "email": email_to})
-            EmailThead([email_to], message).start()
-
-            return Response(data, status=200)
-        else:
-            return Response(form.errors, status=400)
-
-
-# users
-@method_decorator(csrf_exempt, name='dispatch')
-class RegisterDriver(APIView):
-    """
-        The User can become a driver by entering the driver licence,and gender.
-    """
-    schema = DriverSchema()
-
-    def post(self, request):
-        form = DriverCreationForm(request.data)
-        if form.is_valid():
-            driver = form.save(commit=False)
-            driver.user = request.user
-            driver.save()
-            data = DriverSerializer(driver).data
-            # create auth token
-            token = Token.objects.get(user=driver).key
-            data["token"] = token
-            email_to = driver.user.email
             message = render_to_string("registration_email.html", {
                 "email": email_to})
             EmailThead([email_to], message).start()
@@ -126,7 +98,7 @@ class UpdatePasswordView(APIView):
     """
     schema = UpdatePasswordSchema()
 
-    # authentication_classes = [TokenAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def put(self, request):
@@ -202,87 +174,3 @@ class ResetPasswordView(APIView):
         return int(token)
 
 
-# Customer
-@method_decorator(csrf_exempt, name='dispatch')
-class UserProfileView(APIView):
-    """
-        Returns the basic saved customer details such as email,username, phone and shipments.
-    """
-    schema = UserSchema()
-
-    # authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        """
-        Returns user profile
-        """
-        # user_profile = get_object_or_404(User, user=request.user)
-        response = UserSerializer(request.user).data
-        return Response(data=response, status=200)
-
-    def put(self, request):
-        """update profile - email, phone number"""
-        form = UserProfileUpdateForm(request.data)
-        if form.is_valid():
-            user = request.user
-            user_profile = get_object_or_404(User, user=user)
-            if form.cleaned_data.get("email"):
-                user.email = form.cleaned_data["email"]
-                user.save()
-            if form.cleaned_data.get("phone_number"):
-                user_profile.phone_number = form.cleaned_data['phone_number']
-            user_profile.save()
-            return Response(UserSerializer(user_profile).data,
-                            status=200)
-
-        return Response(form.errors, status=400)
-
-    def patch(self, request):
-        """update user profile image"""
-        if request.FILES:
-            profile = User.objects.get(
-                user=request.user
-            )
-            profile.profile_image = request.FILES[0]
-            profile.save()
-            return Response({"message": "profile update was successful"}, status=200)
-        return Response({"message": "invalid image"}, status=400)
-
-
-# driver_views
-class DriverProfileView(APIView):
-    """
-     Api endpoint for driver profile. Works the same as customers
-    """
-    schema = UserSchema()
-
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        """
-        > Returns driver profile details
-        """
-        driver = get_object_or_404(Driver, user=request.user)
-        return Response(DriverSerializer(driver).data)
-
-    def put(self, request):
-        """
-        updates driver details
-
-        """
-        form = DriverProfileUpdateForm(request.data)
-        if form.is_valid():
-            user = request.user
-            driver = get_object_or_404(Driver, user=user)
-            if form.cleaned_data.get("email"):
-                user.email = form.cleaned_data["email"]
-                user.save()
-            if form.cleaned_data.get("phone_number"):
-                driver.phone_number = form.cleaned_data['phone_number']
-            if form.cleaned_data.get("profile_image"):
-                driver.profile_image = form.cleaned_data["profile_image"]
-            driver.save()
-            return Response(DriverSerializer(driver).data, status=200)
-        return Response(form.errors, status=400)

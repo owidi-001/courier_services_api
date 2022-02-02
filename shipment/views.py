@@ -1,4 +1,3 @@
-from django.db.models.fields import json
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -7,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from users.permision import IsDriver
+from driver.permision import IsDriver
 
 
 from .serializers import *
@@ -71,26 +70,6 @@ class ShipmentView(APIView):
         )
         return Response(CustomerShipmentSerializer(customer_shipment).data)
 
-
-@method_decorator(csrf_exempt, name="dispatch")
-class VehicleView(APIView):
-    # authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    """
-    Returns all vehicle available
-    """
-
-    def get(self, request):
-        """
-        Returns all vehicle available
-        """
-        query = Vehicle.objects.all()
-
-        return Response(
-            VehicleSerializer(query, many=True).data,
-            status=200,
-        )
 
 
 @method_decorator(csrf_exempt, name="dispatch")

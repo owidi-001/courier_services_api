@@ -1,22 +1,13 @@
-from abc import ABC
 
 from rest_framework import serializers
-from users.models import User, Driver
+from users.models import User
 
 
 # USERS and AUTH
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "phone_number", "email", "avatar"]
-
-
-class DriverSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
-    class Meta:
-        model = Driver
-        fields = ["user", "dl_number", "gender"]
+        fields = ["username", "phone_number", "email", "avatar" ,"is_driver"]
 
 
 # API serializer classes

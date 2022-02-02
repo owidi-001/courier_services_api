@@ -1,8 +1,7 @@
-from django.db.models import fields
 from rest_framework import serializers
-from .models import Cargo, Location, Vehicle, Shipment, CustomerShipment, User
-from users.serializers import UserSerializer, DriverSerializer
-from datetime import datetime
+
+from users.serializers import UserSerializer
+from .models import Cargo, Location, Shipment, CustomerShipment
 
 
 # SHIPMENT
@@ -10,15 +9,6 @@ class CargoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cargo
         fields = ["size", "nature"]
-
-
-class VehicleSerializer(serializers.ModelSerializer):
-    driver = DriverSerializer()
-
-    class Meta:
-        model = Vehicle
-        fields = "__all__"
-        read_only_fields = ["id"]
 
 
 class LocationSerializer(serializers.ModelSerializer):

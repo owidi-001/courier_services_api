@@ -1,12 +1,12 @@
-from datetime import datetime
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from shipment.utils import coordinateDistance, randomString
-from django.core.exceptions import ValidationError
 
-from users.models import Driver, User
+from driver.models import Driver, Vehicle
+from shipment.utils import coordinateDistance, randomString
+from users.models import User
 from users.views import EmailThead
 
 
@@ -57,38 +57,6 @@ class Location(models.Model):
 
     def __str__(self):
         return f"{self.street},{self.city},Kenya"
-
-
-class Vehicle(models.Model):
-    # One driver can own/drive many vehicles
-    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
-    carrier_type = models.CharField(
-        max_length=100,
-        help_text="vehicle carriage type",
-        choices=(
-            ("L", "Lorry"),
-            ("P", "Pickup"),
-            ("B", "MotorBike"),
-        ),
-    )
-    carrier_capacity = models.CharField(
-        max_length=100,
-        help_text="Approximate vehicle carrying capacity",
-        choices=Size.choices,
-    )
-    vehicle_registration_number = models.CharField(
-        max_length=20,
-        unique=True,
-    )
-    charge_rate = models.FloatField(
-        help_text="The price a driver charges per km in KSH",
-    )
-
-    class Meta:
-        verbose_name_plural = "Vehicle"
-
-    def __str__(self) -> str:
-        return f"{self.vehicle_registration_number}"
 
 
 class Shipment(models.Model):
