@@ -57,8 +57,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
         cargo.save()
         destination.save()
         origin.save()
-
-        shipment = Shipment(
+        shipment,_ = Shipment.objects.get_or_create(
             origin=origin,
             destination=destination,
             cargo=cargo,
@@ -67,6 +66,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
         shipment.save(
             distance=self.validated_data["distance"],
         )
+        
         customer_shipment, _ = CustomerShipment.objects.get_or_create(
             shipment=shipment,
             customer=request.user,

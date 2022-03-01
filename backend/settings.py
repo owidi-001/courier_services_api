@@ -28,7 +28,7 @@ if config.development:
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = config.ALLOWED_HOSTS
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 

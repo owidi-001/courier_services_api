@@ -19,4 +19,4 @@ def coordinateDistance(lat1, lon1, lat2, lon2):
 
 
 def randomString(n=10) -> str:
-    return "".join([randint(0, 9) for i in range(n)])
+    return "".join([str(randint(0, 9)) for i in range(n)])

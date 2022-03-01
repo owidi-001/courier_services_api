@@ -46,13 +46,16 @@ class ShipmentView(APIView):
         """
         shimpment_serializer = ShipmentSerializer(data=request.data)
         if shimpment_serializer.is_valid():
+            print(shimpment_serializer.data)
             shipment = shimpment_serializer.save(
                 request,
             )
+            
             data = CustomerShipmentSerializer(
                 shipment,
             ).data
             return Response(data, status=200)
+            
         return Response(shimpment_serializer.errors, status=400)
 
     def patch(self, request):

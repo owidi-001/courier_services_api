@@ -13,7 +13,8 @@ class DriverSerializer(serializers.ModelSerializer):
 
 
 class VehicleSerializer(serializers.ModelSerializer):
+    driver = DriverSerializer()
     class Meta:
         model = Vehicle
-        fields = ["carrier_type", "carrier_capacity", "vehicle_registration_number", "charge_rate"]
+        fields = ["carrier_type","driver" ,"carrier_capacity", "vehicle_registration_number", "charge_rate","id"]
         read_only_fields = ["id"]

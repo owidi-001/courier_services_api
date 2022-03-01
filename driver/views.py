@@ -3,6 +3,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
+
 # users
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -21,8 +22,9 @@ from users.models import User
 
 class DriverProfileView(APIView):
     """
-     Api endpoint for driver profile. Works the same as customers
+    Api endpoint for driver profile. Works the same as customers
     """
+
     schema = DriverSchema()
 
     authentication_classes = [TokenAuthentication]
@@ -33,6 +35,9 @@ class DriverProfileView(APIView):
         Activate driver when license and vehicle are provided
         """
         driver = get_object_or_404(Driver, user=request.user)
+        print(driver)
+        print(type(driver), "Driver object type")
+
         vehicles = Vehicle.objects.filter(driver=driver)
 
         if driver.dl_number is not None and len(vehicles) != 0 and not driver.is_active:
@@ -61,7 +66,7 @@ class DriverProfileView(APIView):
                 user.email = form.cleaned_data["email"]
                 user.save()
             if form.cleaned_data.get("phone_number"):
-                driver.phone_number = form.cleaned_data['phone_number']
+                driver.phone_number = form.cleaned_data["phone_number"]
             if form.cleaned_data.get("profile_image"):
                 driver.profile_image = form.cleaned_data["profile_image"]
             driver.save()
@@ -71,13 +76,15 @@ class DriverProfileView(APIView):
     def patch(self, request):
         """update driver avatar"""
         if request.FILES:
-            profile = User.objects.get(
-                user=request.user
-            )
+            profile = User.objects.get(user=request.user)
             profile.avatar = request.FILES[0]
             profile.save()
-            return Response({"message": "avatar updated successfully"}, status=status.HTTP_200_OK)
-        return Response({"message": "invalid image"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "avatar updated successfully"}, status=status.HTTP_200_OK
+            )
+        return Response(
+            {"message": "invalid image"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -93,9 +100,11 @@ class VehicleView(APIView):
         """
         Returns all vehicle belonging to a driver
         """
-        query = Vehicle.objects.filter(driver=request.user)
+        query = Vehicle.objects.filter(driver__user=request.user)
 
-        return Response(VehicleSerializer(query, many=True).data, status=status.HTTP_200_OK)
+        return Response(
+            VehicleSerializer(query, many=True).data, status=status.HTTP_200_OK
+        )
 
     def post(self, request):
         """
