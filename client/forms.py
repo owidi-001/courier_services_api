@@ -8,7 +8,7 @@ class ClientProfileUpdateForm(forms.Form):
     avatar = forms.FileField(required=False)
     phone_number = forms.CharField(required=False, max_length=13)
     email = forms.EmailField(required=False)
-    gender = forms.CharField(max_length=1)
+    #gender = forms.CharField(max_length=1)
 
     def clean_phone_number(self):
         phone_no = self.cleaned_data.get("phone_number")

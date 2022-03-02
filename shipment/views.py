@@ -75,6 +75,22 @@ class ShipmentView(APIView):
 
 
 
+
+
+class DriverShipmentsView(APIView):
+    permission_classes = [IsAuthenticated, IsDriver]
+    
+    def get(self, *args,**kwargs):
+        """
+        Returns all driver shipments - shipment history
+        """
+        #TODO filter the shipment to only for a given driver
+        query = CustomerShipment.objects.all()
+
+        return Response(
+            CustomerShipmentSerializer(query, many=True).data,
+        )
+
 @method_decorator(csrf_exempt, name="dispatch")
 class DriverShipmentRequestView(APIView):
     """
@@ -85,11 +101,11 @@ class DriverShipmentRequestView(APIView):
     # authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsDriver]
 
-    def get(self, request):
+    def get(self, *args,**kwargs):
         """
-        Returns all shipments
+        Returns all requests shipments
         """
-        query = CustomerShipment.objects.filter(shipment__status="A")
+        query = CustomerShipment.objects.filter(shipment__status="P")
 
         return Response(
             CustomerShipmentSerializer(query, many=True).data,
@@ -101,9 +117,11 @@ class DriverShipmentRequestView(APIView):
         """
         shipment_id = request.data.get("shipment_id")
         customer_shipment = get_object_or_404(CustomerShipment, id=shipment_id)
+        
         customer_shipment.confirmed = True
         customer_shipment.shipment.status = "A"
         customer_shipment.save()
+        customer_shipment.shipment.save()
         # Mail customer to affirm shipment in progress.
         message = f"{request.user} has confirmed your shipment set fom {customer_shipment.shipment.origin} to {customer_shipment.shipment.destination}"
         EmailThead(
@@ -117,9 +135,9 @@ class DriverShipmentRequestView(APIView):
         """
         shipment_id = request.data.get("shipment_id")
         customer_shipment = get_object_or_404(CustomerShipment, id=shipment_id)
-        if customer_shipment.status == "A":
+        if customer_shipment.shipment.status == "A":
             customer_shipment.shipment.status = "F"
-        customer_shipment.save()
+        customer_shipment.shipment.save()
         # Mail customer to affirm shipment is completed.
         message = (
             f"Your shipment if complete.\nWe value your feedback. Please leave us a review. Thank you for "
