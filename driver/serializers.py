@@ -1,3 +1,4 @@
+from wsgiref.validate import validator
 from rest_framework import serializers
 
 from driver.models import Driver, Vehicle
@@ -14,7 +15,8 @@ class DriverSerializer(serializers.ModelSerializer):
 
 class VehicleSerializer(serializers.ModelSerializer):
     driver = DriverSerializer()
+
     class Meta:
         model = Vehicle
-        fields = ["carrier_type","driver" ,"carrier_capacity", "vehicle_registration_number", "charge_rate","id"]
-        read_only_fields = ["id"]
+        fields = ["carrier_type", "driver", "carrier_capacity",
+                  "vehicle_registration_number", "charge_rate", "id"]

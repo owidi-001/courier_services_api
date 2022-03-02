@@ -50,12 +50,12 @@ class ShipmentView(APIView):
             shipment = shimpment_serializer.save(
                 request,
             )
-            
+
             data = CustomerShipmentSerializer(
                 shipment,
             ).data
             return Response(data, status=200)
-            
+
         return Response(shimpment_serializer.errors, status=400)
 
     def patch(self, request):
@@ -74,22 +74,20 @@ class ShipmentView(APIView):
         return Response(CustomerShipmentSerializer(customer_shipment).data)
 
 
-
-
-
 class DriverShipmentsView(APIView):
     permission_classes = [IsAuthenticated, IsDriver]
-    
-    def get(self, *args,**kwargs):
+
+    def get(self, request):
         """
         Returns all driver shipments - shipment history
         """
-        #TODO filter the shipment to only for a given driver
-        query = CustomerShipment.objects.all()
+        query = CustomerShipment.objects.filter(
+            shipment__vehicle__driver=request.driver)
 
         return Response(
             CustomerShipmentSerializer(query, many=True).data,
         )
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class DriverShipmentRequestView(APIView):
@@ -101,7 +99,7 @@ class DriverShipmentRequestView(APIView):
     # authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsDriver]
 
-    def get(self, *args,**kwargs):
+    def get(self, *args, **kwargs):
         """
         Returns all requests shipments
         """
@@ -117,7 +115,7 @@ class DriverShipmentRequestView(APIView):
         """
         shipment_id = request.data.get("shipment_id")
         customer_shipment = get_object_or_404(CustomerShipment, id=shipment_id)
-        
+
         customer_shipment.confirmed = True
         customer_shipment.shipment.status = "A"
         customer_shipment.save()
@@ -166,11 +164,13 @@ class FeedbackView(APIView):
         rating = request.data.get("rating")
         shipmentId = request.data.get("shipment_id")
         shipment = get_object_or_404(Shipment, id=shipmentId)
-        shipment.rating = rating
+        if rating:
+            shipment.rating = rating
         shipment.save()
         message = request.data.get("message")
         if message:
-            feedback = Feedback(user=request.user, message=message, shipment=shipment)
+            feedback = Feedback(user=request.user,
+                                message=message, shipment=shipment)
             feedback.save()
 
         return Response({"message": "Thank you for your feed back"})

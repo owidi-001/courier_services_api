@@ -76,8 +76,10 @@ class Shipment(models.Model):
     )
     vehicle = models.ForeignKey(
         Vehicle,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
+        blank=True,
+        db_constraint=False
     )
     status = models.CharField(
         max_length=1,
@@ -137,8 +139,9 @@ class Shipment(models.Model):
 
 
 class CustomerShipment(models.Model):
-    shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE, null=True)
-    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    shipment = models.ForeignKey(
+        Shipment, on_delete=models.CASCADE, null=True, unique=False)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, unique=False)
     order_number = models.CharField(max_length=10)
 
     def save(self, *args, **kwargs):
@@ -167,7 +170,8 @@ def send_customer_notification(sender=None, instance=None, created=False, **kwar
             message = "The cargo arrived at their destination."
             # email notification
             EmailThead(
-                [item.customer.email for item in clients] + ["admin@gmail.com"], message
+                [item.customer.email for item in clients] +
+                ["admin@gmail.com"], message
             )
 
     except:
@@ -176,7 +180,8 @@ def send_customer_notification(sender=None, instance=None, created=False, **kwar
 
 class Feedback(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    shipment = models.OneToOneField(Shipment, on_delete=models.CASCADE, default=None)
+    shipment = models.OneToOneField(
+        Shipment, on_delete=models.CASCADE, default=None)
     message = models.TextField()
     created_on = models.DateTimeField(auto_created=True, default=timezone.now)
 

@@ -8,10 +8,11 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from driver.permision import IsDriver
 
 # driver_views
 from driver.driver_doc_schema import DriverSchema
-from driver.forms import DriverProfileUpdateForm
+from driver.forms import DriverProfileUpdateForm, VehicleCreationForm
 from driver.models import Driver
 from driver.serializers import DriverSerializer, VehicleSerializer
 
@@ -90,7 +91,7 @@ class DriverProfileView(APIView):
 @method_decorator(csrf_exempt, name="dispatch")
 class VehicleView(APIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsDriver]
 
     """
         Vehicle object manipulation views
@@ -110,14 +111,22 @@ class VehicleView(APIView):
         """
         Driver add a new vehicle
         """
+        data = request.data
+        form = VehicleCreationForm(data)
 
-        serializer = VehicleSerializer(data=request.data)
+        if form.is_valid():
+            vehicle, _ = Vehicle.objects.get_or_create(
+                driver=request.driver,
+                carrier_capacity=form.validated_data["carrier_capacity"],
+                charge_rate=form.validated_data["charge_rate"],
+                carrier_type=form.validated_data["carrier_type"],
+                vehicle_registration_number=form.validated_data["vehicle_registration_number"],
 
-        if serializer.is_valid():
-            serializer.driver = request.user
-            serializer.save()
+            )
+            vehicle.save()
+            serializer = VehicleSerializer(vehicle)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
         """

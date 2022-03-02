@@ -16,10 +16,12 @@ class Driver(models.Model):
     GENDER = (
         ("M", "Male"), ("F", "Female"), ("P", "Prefer Not To Say")
     )
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='driver_profile')
-    dl_number = models.CharField(max_length=10, unique=True, null=True)
-    gender = models.CharField(max_length=1, choices=GENDER)
-    is_active = models.BooleanField(default=False)  # Driver becomes active by adding vehicle and license
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='driver_profile')
+    dl_number = models.CharField(max_length=10, unique=True, null=True,)
+    gender = models.CharField(max_length=1, choices=GENDER, default="P",)
+    # Driver becomes active by adding vehicle and license
+    is_active = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return f"{self.user}"

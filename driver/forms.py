@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from driver.models import Vehicle
 
 from users.form_validators import phone_number_validator, email_validator, license_validator
 
@@ -38,3 +39,10 @@ class DriverProfileUpdateForm(forms.Form):
                 "Please provide a valid driving license number")
 
         return dl_number
+
+
+class VehicleCreationForm(forms.ModelForm):
+    class Meta:
+        model = Vehicle
+        fields = ["carrier_type", "carrier_capacity",
+                  "vehicle_registration_number", "charge_rate"]
