@@ -117,10 +117,10 @@ class VehicleView(APIView):
         if form.is_valid():
             vehicle, _ = Vehicle.objects.get_or_create(
                 driver=request.driver,
-                carrier_capacity=form.validated_data["carrier_capacity"],
-                charge_rate=form.validated_data["charge_rate"],
-                carrier_type=form.validated_data["carrier_type"],
-                vehicle_registration_number=form.validated_data["vehicle_registration_number"],
+                carrier_capacity=form.cleaned_data["carrier_capacity"],
+                charge_rate=form.cleaned_data["charge_rate"],
+                carrier_type=form.cleaned_data["carrier_type"],
+                vehicle_registration_number=form.cleaned_data["vehicle_registration_number"],
 
             )
             vehicle.save()
