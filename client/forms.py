@@ -5,10 +5,12 @@ from django.core.exceptions import ValidationError
 
 
 class ClientProfileUpdateForm(forms.Form):
-    avatar = forms.FileField(required=False)
+    username = forms.CharField(
+        max_length=150, help_text="Username is required")
     phone_number = forms.CharField(required=False, max_length=13)
     email = forms.EmailField(required=False)
-    #gender = forms.CharField(max_length=1)
+    is_driver = forms.BooleanField(required=False, help_text="I'm a driver")
+    gender = forms.CharField(max_length=1)
 
     def clean_phone_number(self):
         phone_no = self.cleaned_data.get("phone_number")
@@ -25,3 +27,20 @@ class ClientProfileUpdateForm(forms.Form):
             raise ValidationError(
                 "please provide a valid Email address")
         return email
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if not username:
+            raise ValidationError("Username is required")
+        return username
+
+    def clean_is_driver(self):
+        is_driver = self.cleaned_data.get("is_driver")
+        if not is_driver:
+            return False
+        return True
+
+
+class ClientAvatar(forms.Form):
+    avatar = forms.ImageField(required=False)
+
