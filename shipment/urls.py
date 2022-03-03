@@ -9,8 +9,8 @@ from .views import (
 
 urlpatterns = [
     # SHIPMENT
-    path("shipment/client", ShipmentView.as_view(), name="shipments"),
-    path("shipment/driver", DriverShipmentRequestView.as_view()),
+    path("shipment/client/", ShipmentView.as_view(), name="shipments"),
+    path("shipment/driver/", DriverShipmentRequestView.as_view()),
     path("shipment/driver-history/", DriverShipmentsView.as_view()),
       # Driver list of shipments
 
