@@ -118,6 +118,8 @@ class DriverShipmentRequestView(APIView):
 
         customer_shipment.confirmed = True
         customer_shipment.shipment.status = "A"
+        customer_shipment.shipment.vehicle = request.driver.vehicle
+
         customer_shipment.save()
         customer_shipment.shipment.save()
         # Mail customer to affirm shipment in progress.

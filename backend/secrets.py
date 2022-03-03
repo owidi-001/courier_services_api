@@ -17,8 +17,7 @@ class Config:
 
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
-    MAIL_USERNAME = 'mrmarangi4@gmail.com'  # Fake mail
-    MAIL_PASSWORD = 'rwgdxttcirhnwzrm'  # Fake password
+
 
 
 config = Config()
