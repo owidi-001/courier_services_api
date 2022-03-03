@@ -15,7 +15,7 @@ class Client(models.Model):
     is_active = models.BooleanField(default=False)  # Client becomes active if he/she has made a shipment
 
     def __str__(self) -> str:
-        return f"{self.user}"
+        return f"{self.user},{self.gender}"
 
     class Meta:
         verbose_name_plural = "Clients"

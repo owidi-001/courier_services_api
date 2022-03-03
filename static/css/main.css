@@ -1,0 +1,139 @@
+:root {
+    --background: #3277D8;
+    --color: #000000;
+    --light: rgb(224, 224, 224);
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+}
+
+/* main */
+main {
+    width: 100vw;
+    height: 100vh;
+    background: var(--background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+main .wrapper {
+    width: 500px;
+    height: 450px;
+    border-radius: 10px;
+    background: var(--light);
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+    height: 100%;
+    width: 100%;
+}
+
+.card .card-header {
+    padding: 0.5rem 1rem;
+    margin-bottom: 0;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    min-height: 3em;
+}
+
+span.icon {
+    position: relative;
+    font-size: 2em;
+    color: var(--background);
+}
+
+/* span.icon i{ */
+/* position: relative;
+    margin-top: 0em;
+    font-size: 2em; */
+/* } */
+
+.card-body {
+    flex: 1 1 auto;
+    padding: 1rem 1rem;
+}
+
+.card-body p {
+    margin-left: 2em;
+    margin-bottom: 2em;
+    line-height: 1.5;
+}
+
+.card .form-control {
+    display: block;
+    width: 80%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    margin-left: 2em;
+    margin-bottom: 2em;
+}
+
+.card-body .btn {
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    margin-left: 2em;
+    margin-bottom: 2em;
+    background: var(--background);
+    color: var(--light);
+}
+
+.card a {
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.card .card-footer {
+    padding: 0.5rem 1rem;
+    background-color: rgba(0, 0, 0, 0.03);
+    min-height: 2em;
+}
+
+/* responsive */
+@media only screen and (max-width: 600px) {
+    main .wrapper {
+        width: 90%;
+        height: 60%;
+        border-radius: 5px;
+    }
+}

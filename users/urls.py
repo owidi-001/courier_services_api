@@ -1,8 +1,10 @@
 from django.conf import settings
-from django.contrib.auth.views import LogoutView
+from django.contrib.auth.views import LogoutView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, \
+    PasswordResetCompleteView, PasswordChangeDoneView, PasswordChangeView
 from django.urls import path
 
-from .views import (RegisterUser, UserLogin, UpdatePasswordView, ResetPasswordView)
+from .views import (RegisterUser, UserLogin, ResetPasswordView,ResetPasswordCompleteView)
+
 
 urlpatterns = [
     # Auth user
@@ -11,12 +13,8 @@ urlpatterns = [
     path("auth/logout/", LogoutView.as_view(), {'next_page': settings.LOGOUT_REDIRECT_URL}, name="logout"),
 
 
-    path("auth/update-password/", UpdatePasswordView.as_view(), name="password_update"),
-    
-    
-
-    #reset password done
-    path("auth/reset/<uidb64>/<token>/", ResetPasswordView.as_view(), name="reset"),
-
+    # reset password done
+    path("auth/reset/", ResetPasswordView.as_view(), name="reset"),
+    path("auth/reset/<uidb64>/<token>/", ResetPasswordCompleteView.as_view(), name="reset"),
 
 ]

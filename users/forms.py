@@ -58,3 +58,19 @@ class UserLoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(max_length=150, widget=forms.PasswordInput)
 
+
+class ResetPasswordForm(forms.Form):
+    password1 = forms.PasswordInput()
+    password2 = forms.PasswordInput()
+
+    def clean_password1(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+
+        if not (password1 == password2):
+            raise ValidationError("Passwords don't match")
+        return password1
+
+
+class UserAvatar(forms.Form):
+    avatar = forms.ImageField(required=False)

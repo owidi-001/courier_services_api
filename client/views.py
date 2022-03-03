@@ -13,7 +13,7 @@ from shipment.models import CustomerShipment
 
 # Documentation schema
 from .client_doc_schema import *
-from .forms import ClientProfileUpdateForm
+from .forms import ClientProfileUpdateForm, ClientAvatar
 from .models import User
 from .serializers import *
 
@@ -55,36 +55,57 @@ class ClientProfileView(APIView):
     def put(self, request):
         """update profile - email, phone number,avatar"""
         form = ClientProfileUpdateForm(request.data)
-        if form.is_valid():
 
-            client = get_object_or_404(Client, user=request.user)
+        if form.is_valid():
+            user = get_object_or_404(User, username=request.user.username)
+
+            # print("client retrieved", client.user.email)
+            if form.cleaned_data.get("username"):
+                print(form.cleaned_data.get("username"))
+                user.username = form.cleaned_data["username"]
+                user.save()
 
             if form.cleaned_data.get("email"):
-                client.user.email = form.cleaned_data["email"]
-                client.user.save()
+                print(form.cleaned_data.get("email"))
+                user.email = form.cleaned_data["email"]
+                user.save()
             if form.cleaned_data.get("phone_number"):
-                client.user.phone_number = form.cleaned_data["phone_number"]
-                client.user.save()
-            if form.cleaned_data.get("gender"):
-                client.gender = form.cleaned_data["gender"]
-                client.save()
-            client.save()
-            return Response(ClientSerializer(client).data, status=status.HTTP_200_OK)
+                user.phone_number = form.cleaned_data["phone_number"]
+                user.save()
 
+            client = get_object_or_404(Client, user=user)
+
+            if form.cleaned_data.get("gender"):
+                print(form.cleaned_data.get("gender"), "This is the client gender")
+                client.gender = form.cleaned_data["gender"]
+                print(client.gender)
+                client.save()
+            try:
+                client.save()
+                print("Client saved")
+
+            except:
+                print(client)
+            return Response(ClientSerializer(client).data, status=status.HTTP_200_OK)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
-        """update client avatar"""
-        if request.FILES:
-            profile = User.objects.get(user=request.user)
-            profile.avatar = request.FILES[0]
-            profile.save()
+        """
+        Update client avatar
+        """
+        form = ClientAvatar(request.FILES)
+
+        if form.is_valid():
+            if request.FILES:
+                user = User.objects.get(user=request.user)
+                user.avatar = request.FILES[0]
+                user.save()
+                return Response(
+                    {"message": "avatar updated successfully"}, status=status.HTTP_200_OK
+                )
             return Response(
-                {"message": "avatar updated successfully"}, status=status.HTTP_200_OK
+                {"message": "invalid image"}, status=status.HTTP_400_BAD_REQUEST
             )
-        return Response(
-            {"message": "invalid image"}, status=status.HTTP_400_BAD_REQUEST
-        )
 
 
 class VehicleListView(APIView):
@@ -104,5 +125,3 @@ class VehicleListView(APIView):
         return Response(
             VehicleSerializer(query, many=True).data, status=status.HTTP_200_OK
         )
-
-

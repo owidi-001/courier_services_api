@@ -15,5 +15,10 @@ class ClientSchema(AutoSchema):
                 coreapi.Field("gender", required=False, location="form"),
 
             ]
+        if method.lower() in ["patch"]:
+            extra_fields = [
+                coreapi.Field("avatar", required=False, location="form")
+            ]
+
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields

@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from users.models import User
 
@@ -7,7 +6,7 @@ from users.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "phone_number", "email", "avatar" ,"is_driver"]
+        fields = ["username", "phone_number", "email", "avatar", "is_driver"]
 
 
 # API serializer classes

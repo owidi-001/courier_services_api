@@ -139,9 +139,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 #STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STATIC_URL = '/static/'
-# STATIC_ROOT = BASE_DIR, '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    # '/var/www/static/',
+]
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR, 'media'
@@ -155,7 +159,11 @@ AUTH_USER_MODEL = 'users.User'
 
 LOGOUT_REDIRECT_URL = "/"
 
+
 # email config
+EMAIL_BACKEND = config.EMAIL_BACKEND
+EMAIL_FILE_PATH = str(BASE_DIR.joinpath('sent_emails'))
+
 EMAIL_USE_TLS = config.EMAIL_USE_TLS
 EMAIL_HOST = config.EMAIL_HOST
 EMAIL_HOST_USER = config.EMAIL_HOST_USER
