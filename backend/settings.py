@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+
+from black import os
 from .secrets import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -147,6 +149,7 @@ STATICFILES_DIRS = [
 ]
 
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR, 'media'
 
