@@ -198,7 +198,7 @@ class NotificationView(APIView):
 
     def get(self, request):
         notifications = Notification.objects.filter(user=request.user)
-        data = NotificationSerializer(notifications).data
+        data = NotificationSerializer(notifications,many=True).data
         return Response(data)
 
 

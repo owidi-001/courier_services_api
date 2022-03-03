@@ -193,14 +193,14 @@ class Feedback(models.Model):
 
 
 class Notification(models.Model):
-    created = models.DateTimeField(auto_created=True)
+    created = models.DateTimeField(auto_created=True,default=timezone.now)
     message = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     @property
     def date(self):
         # date_time = datetime.fromisoformat(self.shipment_date)
-        return self.shipment_date.strftime("%d %B, %Y")
+        return self.created.strftime("%d %B, %Y")
 
     def __str__(self):
         return self.message
