@@ -190,3 +190,17 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"{self.user}: {self.message}"
+
+
+class Notification(models.Model):
+    created = models.DateTimeField(auto_created=True)
+    message = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    @property
+    def date(self):
+        # date_time = datetime.fromisoformat(self.shipment_date)
+        return self.shipment_date.strftime("%d %B, %Y")
+
+    def __str__(self):
+        return self.message

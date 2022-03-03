@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from users.serializers import UserSerializer
-from .models import Cargo, Location, Shipment, CustomerShipment
+from .models import Cargo, Location, Notification, Shipment, CustomerShipment
 
 
 # SHIPMENT
@@ -83,3 +83,8 @@ class CustomerShipmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomerShipment
         fields = "__all__"
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification()
+        fields = ["date","message"]

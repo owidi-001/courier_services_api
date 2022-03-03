@@ -14,7 +14,7 @@ from .serializers import *
 from users.data import SUPPORT_CONTACT
 from users.views import EmailThead
 
-from .models import Shipment, CustomerShipment, Feedback
+from .models import Notification, Shipment, CustomerShipment, Feedback
 
 # Documentation schema
 from .shipment_doc_schema import *
@@ -36,17 +36,13 @@ class ShipmentView(APIView):
         response = CustomerShipmentSerializer(query, many=True).data
         return Response(response)
 
-    """
-    Saves all shipment information filled by the customer.
-    """
-
     def post(self, request):
         """
         The client fills in the shipment data
         """
         shimpment_serializer = ShipmentSerializer(data=request.data)
         if shimpment_serializer.is_valid():
-            print(shimpment_serializer.data)
+
             shipment = shimpment_serializer.save(
                 request,
             )
@@ -54,6 +50,12 @@ class ShipmentView(APIView):
             data = CustomerShipmentSerializer(
                 shipment,
             ).data
+            message = "You shipment request has been received."
+            notification = Notification(
+                user=request.user,
+                message=message
+            )
+            notification.save()
             return Response(data, status=200)
 
         return Response(shimpment_serializer.errors, status=400)
@@ -67,10 +69,16 @@ class ShipmentView(APIView):
         customer_shipment.shipment.status = "C"
         customer_shipment.shipment.save()
         # Mail customer to affirm shipment cancellation
+
         message = f"You have successfully cancelled the shipment request"
         EmailThead(
             [customer_shipment.customer.email, "courier_admin@gmail.com"], message
         )
+        notification = Notification(
+            user=request.user,
+            message=message
+        )
+        notification.save()
         return Response(CustomerShipmentSerializer(customer_shipment).data)
 
 
@@ -122,11 +130,18 @@ class DriverShipmentRequestView(APIView):
 
         customer_shipment.save()
         customer_shipment.shipment.save()
-        # Mail customer to affirm shipment in progress.
+
         message = f"{request.user} has confirmed your shipment set fom {customer_shipment.shipment.origin} to {customer_shipment.shipment.destination}"
         EmailThead(
             [customer_shipment.customer.email, "courier_admin@gmail.com"], message
         )
+
+        notification = Notification(
+            user=customer_shipment.customer,
+            message=message
+        )
+        notification.save()
+
         return Response(CustomerShipmentSerializer(customer_shipment).data)
 
     def patch(self, request):
@@ -176,6 +191,15 @@ class FeedbackView(APIView):
             feedback.save()
 
         return Response({"message": "Thank you for your feed back"})
+
+
+class NotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        notifications = Notification.objects.filter(user=request.user)
+        data = NotificationSerializer(notifications).data
+        return Response(data)
 
 
 @api_view(["GET"])
