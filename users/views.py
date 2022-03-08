@@ -63,7 +63,6 @@ class RegisterUser(APIView):
 
             EmailThead([email_to], message, subject).start()
 
-
             return Response(data, status=200)
         else:
             return Response(form.errors, status=400)
@@ -72,7 +71,7 @@ class RegisterUser(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class UserLogin(APIView):
     """
-    The user signs in using the email and password used for registering.
+    The user signs in using the email and password used in registation.
     """
     schema = UserLoginSchema()
 
@@ -122,7 +121,6 @@ class ResetPasswordView(APIView):
             scheme = request.build_absolute_uri().split(":")[0]
             path = f"{scheme}://{request.get_host()}/auth/reset/{uid64}/{token}"
             subject = "Password Reset"
-            print(path)
             message = render_to_string('password_reset_mail.html', {
                 'user': user,
                 "path": path
@@ -157,7 +155,7 @@ class ResetPasswordCompleteView(APIView):
 
         return render(request, "registration/password_reset_confirm.html")
 
-    def post(self, request, uidb64,token):
+    def post(self, request, uidb64, token):
         """
         Request pass word reset by providing an email.
 

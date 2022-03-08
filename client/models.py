@@ -21,12 +21,4 @@ class Client(models.Model):
         verbose_name_plural = "Clients"
 
 
-def create_client_profile(sender, instance, created, **kwargs):
-    print(created, instance.is_driver)
-    if created and not instance.is_driver:
-        client = Client.objects.create(user=instance)
-        client.gender = "P"
-        client.save()
 
-
-post_save.connect(create_client_profile, sender=User)

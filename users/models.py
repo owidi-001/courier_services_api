@@ -1,9 +1,12 @@
+from multiprocessing.connection import Client
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 # Generates auth token
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+
+from courier_services_api.driver.models import Driver
 
 # local modules
 from .managers import UserManager
@@ -16,7 +19,8 @@ def upload(instance, filename):
 class User(AbstractUser):
     username = models.CharField(max_length=30, blank=False, unique=True)
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=13, null=False, blank=False, unique=True)
+    phone_number = models.CharField(
+        max_length=13, null=False, blank=False, unique=True)
     avatar = models.ImageField(null=True, blank=True, upload_to='media/')
     is_driver = models.BooleanField(default=False, blank=True)
 
@@ -33,10 +37,18 @@ class User(AbstractUser):
 """
 
 
-@receiver(post_save, sender=User)
-def create_auth_token(sender=None, instance=None, created=False, **kwargs):
+def create_user(sender, instance, created, **kwargs):
     if created:
-        Token.objects.create(user=instance)
+        auth_token = Token.objects.create(user=instance)
+        client_profile = Client.objects.create(user=instance)
+        driver_profile = Driver.objects.create(user=instance)
+
+        client_profile.save()
+        driver_profile.save()
+        auth_token.save()
+
+
+post_save.connect(create_user, sender=User)
 
 
 class PasswordResetToken(models.Model):
