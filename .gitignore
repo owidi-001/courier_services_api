@@ -4,4 +4,3 @@ env
 .vscode
 .idea
 *__pycache__
-*/migrations
