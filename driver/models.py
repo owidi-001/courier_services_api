@@ -42,7 +42,7 @@ post_save.connect(create_driver_profile, sender=User)
 
 class Vehicle(models.Model):
     # One driver can own/drive many vehicles
-    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE, db_index=True)
     carrier_type = models.CharField(
         max_length=100,
         help_text="vehicle carriage type",

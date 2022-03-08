@@ -79,7 +79,7 @@ class Shipment(models.Model):
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        db_constraint=False
+        db_constraint=False, db_index=True
     )
     status = models.CharField(
         max_length=1,
@@ -90,6 +90,7 @@ class Shipment(models.Model):
             ("F", "fulfilled"),
         ),
         default="P",
+        db_index=True
     )
     shipment_date = models.DateTimeField(
         auto_now_add=True,
@@ -140,8 +141,9 @@ class Shipment(models.Model):
 
 class CustomerShipment(models.Model):
     shipment = models.ForeignKey(
-        Shipment, on_delete=models.CASCADE, null=True, unique=False)
-    customer = models.ForeignKey(User, on_delete=models.CASCADE, unique=False)
+        Shipment, on_delete=models.CASCADE, null=True, unique=False, db_index=True)
+    customer = models.ForeignKey(
+        User, on_delete=models.CASCADE, unique=False, db_index=True)
     order_number = models.CharField(max_length=10)
 
     def save(self, *args, **kwargs):
@@ -193,7 +195,8 @@ class Feedback(models.Model):
 
 
 class Notification(models.Model):
-    created = models.DateTimeField(auto_created=True,default=timezone.now)
+    created = models.DateTimeField(
+        auto_created=True, default=timezone.now, db_index=True)
     message = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
