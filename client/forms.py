@@ -10,7 +10,7 @@ class ClientProfileUpdateForm(forms.Form):
     phone_number = forms.CharField(required=False, max_length=13)
     email = forms.EmailField(required=False)
     is_driver = forms.BooleanField(required=False, help_text="I'm a driver")
-    gender = forms.CharField(max_length=1)
+    gender = forms.CharField(max_length=1, required=False)
 
     def clean_phone_number(self):
         phone_no = self.cleaned_data.get("phone_number")
@@ -43,4 +43,3 @@ class ClientProfileUpdateForm(forms.Form):
 
 class ClientAvatar(forms.Form):
     avatar = forms.ImageField(required=False)
-

@@ -10,8 +10,8 @@ class DriverProfileUpdateForm(forms.Form):
     avatar = forms.FileField(required=False)
     phone_number = forms.CharField(required=False, max_length=13)
     email = forms.EmailField(required=False)
-    gender = forms.CharField(max_length=1)
-    dl_number = forms.CharField(max_length=10)  # license No
+    gender = forms.CharField(max_length=1, required=False,)
+    dl_number = forms.CharField(max_length=10, required=False)  # license No
 
     def clean_phone_number(self):
         phone_no = self.cleaned_data.get("phone_number")

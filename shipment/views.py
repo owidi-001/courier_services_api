@@ -107,11 +107,12 @@ class DriverShipmentRequestView(APIView):
     # authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated, IsDriver]
 
-    def get(self, *args, **kwargs):
+    def get(self, request, **kwargs):
         """
-        Returns all requests shipments
+        Returns all requests  driver shipments
         """
-        query = CustomerShipment.objects.filter(shipment__status="P")
+        query = CustomerShipment.objects.filter(
+            shipment__status="P", shipment__vehicle__driver=request.driver,)
 
         return Response(
             CustomerShipmentSerializer(query, many=True).data,
@@ -126,7 +127,6 @@ class DriverShipmentRequestView(APIView):
 
         customer_shipment.confirmed = True
         customer_shipment.shipment.status = "A"
-        customer_shipment.shipment.vehicle = request.driver.vehicle
 
         customer_shipment.save()
         customer_shipment.shipment.save()
@@ -198,7 +198,7 @@ class NotificationView(APIView):
 
     def get(self, request):
         notifications = Notification.objects.filter(user=request.user)
-        data = NotificationSerializer(notifications,many=True).data
+        data = NotificationSerializer(notifications, many=True).data
         return Response(data)
 
 
