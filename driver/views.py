@@ -62,7 +62,7 @@ class DriverProfileView(APIView):
             user = request.user
             driver = get_object_or_404(Driver, user=user)
             if form.cleaned_data.get("dl_number"):
-                user.dl_number = form.cleaned_data["dl_number"]
+               driver.dl_number = form.cleaned_data["dl_number"]
             if form.cleaned_data.get("email"):
                 user.email = form.cleaned_data["email"]
             if form.cleaned_data.get("phone_number"):
