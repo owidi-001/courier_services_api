@@ -1,4 +1,4 @@
-from multiprocessing.connection import Client
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 # Generates auth token
@@ -6,7 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
-from driver.models import Driver
+
 
 # local modules
 from .managers import UserManager
@@ -40,11 +40,7 @@ class User(AbstractUser):
 def create_user(sender, instance, created, **kwargs):
     if created:
         auth_token = Token.objects.create(user=instance)
-        client_profile = Client.objects.create(user=instance)
-        driver_profile = Driver.objects.create(user=instance)
 
-        client_profile.save()
-        driver_profile.save()
         auth_token.save()
 
 

@@ -31,11 +31,9 @@ class Driver(models.Model):
 
 
 def create_driver_profile(sender, instance, created, **kwargs):
-    print(created, instance.is_driver)
-    if created and instance.is_driver:
+    if created:
         driver = Driver.objects.create(user=instance)
         driver.gender = "P"
-        driver.dl_number = None
         driver.save()
 
 
