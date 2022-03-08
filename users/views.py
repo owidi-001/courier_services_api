@@ -63,7 +63,6 @@ class RegisterUser(APIView):
 
             EmailThead([email_to], message, subject).start()
 
-            print("After mail message")
 
             return Response(data, status=200)
         else:
