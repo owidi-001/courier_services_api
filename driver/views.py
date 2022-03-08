@@ -29,15 +29,13 @@ class DriverProfileView(APIView):
     schema = DriverSchema()
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsDriver]
 
     def driver_active(self, request):
         """
         Activate driver when license and vehicle are provided
         """
         driver = get_object_or_404(Driver, user=request.user)
-        print(driver)
-        print(type(driver), "Driver object type")
 
         vehicles = Vehicle.objects.filter(driver=driver)
 
@@ -51,7 +49,7 @@ class DriverProfileView(APIView):
         """
         > Returns driver profile details
         """
-        driver = self.driver_active(request)
+        driver = request.driver
         return Response(DriverSerializer(driver).data)
 
     def put(self, request):
@@ -63,14 +61,15 @@ class DriverProfileView(APIView):
         if form.is_valid():
             user = request.user
             driver = get_object_or_404(Driver, user=user)
+            if form.cleaned_data.get("dl_number"):
+                user.dl_number = form.cleaned_data["dl_number"]
             if form.cleaned_data.get("email"):
                 user.email = form.cleaned_data["email"]
-                user.save()
             if form.cleaned_data.get("phone_number"):
                 driver.phone_number = form.cleaned_data["phone_number"]
-            if form.cleaned_data.get("profile_image"):
-                driver.profile_image = form.cleaned_data["profile_image"]
+
             driver.save()
+            user.save()
             return Response(DriverSerializer(driver).data, status=status.HTTP_200_OK)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -101,7 +100,7 @@ class VehicleView(APIView):
         """
         Returns all vehicle belonging to a driver
         """
-        query = Vehicle.objects.filter(driver__user=request.user)
+        query = Vehicle.objects.filter(driver=request.driver)
 
         return Response(
             VehicleSerializer(query, many=True).data, status=status.HTTP_200_OK

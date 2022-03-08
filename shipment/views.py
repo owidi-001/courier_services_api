@@ -109,10 +109,11 @@ class DriverShipmentRequestView(APIView):
 
     def get(self, request, **kwargs):
         """
-        Returns all requests  driver shipments
+        Returns all shipment requests for a driver  driver 
         """
         query = CustomerShipment.objects.filter(
-            shipment__status="P", shipment__vehicle__driver=request.driver,)
+            shipment__status="P")
+        query = query.filter(shipment__vehicle__driver=request.driver)
 
         return Response(
             CustomerShipmentSerializer(query, many=True).data,
@@ -120,7 +121,7 @@ class DriverShipmentRequestView(APIView):
 
     def put(self, request):
         """
-        Driver approves shipment requests
+        Driver approves customer shipment requests
         """
         shipment_id = request.data.get("shipment_id")
         customer_shipment = get_object_or_404(CustomerShipment, id=shipment_id)
@@ -130,24 +131,28 @@ class DriverShipmentRequestView(APIView):
 
         customer_shipment.save()
         customer_shipment.shipment.save()
+        try:
+            message = f"{request.user} has confirmed your shipment set fom {customer_shipment.shipment.origin} to {customer_shipment.shipment.destination}"
+            EmailThead(
+                [customer_shipment.customer.email,
+                    "courier_admin@gmail.com"], message
+            )
 
-        message = f"{request.user} has confirmed your shipment set fom {customer_shipment.shipment.origin} to {customer_shipment.shipment.destination}"
-        EmailThead(
-            [customer_shipment.customer.email, "courier_admin@gmail.com"], message
-        )
-
-        notification = Notification(
-            user=customer_shipment.customer,
-            message=message
-        )
-        notification.save()
+            notification = Notification(
+                user=customer_shipment.customer,
+                message=message
+            )
+            notification.save()
+        except:
+            pass
 
         return Response(CustomerShipmentSerializer(customer_shipment).data)
 
     def patch(self, request):
         """
-        Driver affirms shipment completion
+        Driver affirms customer shipment completion
         """
+
         shipment_id = request.data.get("shipment_id")
         customer_shipment = get_object_or_404(CustomerShipment, id=shipment_id)
         if customer_shipment.shipment.status == "A":
