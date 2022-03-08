@@ -158,18 +158,26 @@ class DriverShipmentRequestView(APIView):
         if customer_shipment.shipment.status == "A":
             customer_shipment.shipment.status = "F"
         customer_shipment.shipment.save()
-        # Mail customer to affirm shipment is completed.
-        message = (
-            f"Your shipment if complete.\nWe value your feedback. Please leave us a review. Thank you for "
-            f"trusting us. "
-        )
-        EmailThead(
-            [
-                customer_shipment.customer.email,
-                "courier_admin@gmail.com",
-            ],
-            message,
-        )
+        try:
+            # Mail customer to affirm shipment is completed.
+            message = (
+                f"Your shipment if complete.\nWe value your feedback. Please leave us a review. Thank you for "
+                f"trusting us. "
+            )
+            EmailThead(
+                [
+                    customer_shipment.customer.email,
+                    "courier_admin@gmail.com",
+                ],
+                message,
+            )
+            notification = Notification(
+                user=customer_shipment.customer,
+                message=message
+            )
+            notification.save()
+        except:
+            pass
         return Response(
             CustomerShipmentSerializer(customer_shipment).data,
         )
