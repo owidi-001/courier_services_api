@@ -1,0 +1,23 @@
+<!DOCTYPE>
+<html>
+  <head>
+    <title>HTML email template</title>
+    <meta name="viewport" content="width = 375, initial-scale = -1">
+  </head>
+
+  <body style="background-color: #ffffff; font-size: 16px;">
+     {% autoescape off %}
+        <h3>
+            Hi {{ user.username }},
+        </h3>
+        Account successfully set up for creation successful.
+        click the link below:
+        <br><br>
+{#        <a href="{{ protocol }}://{{ domain }}{% url 'login' %}">Click here to Login</a>#}
+         <a href="{{ path }}">Click here to Login</a>
+        <br><br>
+        If clicking the link above doesn't work, please copy and paste the URL in a new browser
+        window instead.
+    {% endautoescape %}
+  </body>
+</html>

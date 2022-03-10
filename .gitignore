@@ -1,0 +1,7 @@
+/backend/.env
+backend/secrets.py
+env
+.vscode
+.idea
+*__pycache__
+mpesa/mpesa_config.py
