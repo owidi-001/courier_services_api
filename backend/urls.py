@@ -28,7 +28,6 @@ urlpatterns = [
     path('', include('client.urls')),
     path('', include('shipment.urls')),
     path('',include('mpesa.urls')),
-
     # Documentation
     path('', include_docs_urls(title="Courier")),
 ]

@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'driver',
     'client',
     'mpesa'
-
 ]
 
 # rest framework documentation
