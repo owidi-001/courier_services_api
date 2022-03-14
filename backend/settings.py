@@ -13,17 +13,24 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 
 from black import os
-from .secrets import config
+from .secrets import FIREBASE_CREDS, config
 import dj_database_url
-
+# from dotenv import load_dotenv
+# from firebase_admin import credentials
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# load_dotenv(BASE_DIR/".env")
+
+# firebase credentials
+# CREDS = credentials.Certificate(FIREBASE_CREDS)
 SECRET_KEY = config.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -32,7 +39,7 @@ if config.development:
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = ["*"] # localhost,heroku,ngrok
+ALLOWED_HOSTS = ["*"]  # localhost,heroku,ngrok
 
 # Application definition
 
