@@ -4,6 +4,6 @@ env
 .vscode
 .idea
 *__pycache__
-mpesa/mpesa_config.py
+#mpesa/mpesa_config.py
 db.sqlite3
 mpesa/migrations

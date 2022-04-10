@@ -24,8 +24,8 @@ def getAccessToken(request):
 
 def lipa_na_mpesa_online(request):
     user = request.user
-    phone = user.phone_number.split("+")[1]
-
+    # phone = user.phone_number.split("+")[1]
+    phone=254791381653
     access_token = MpesaAccessToken.validated_mpesa_access_token
     api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
     headers = {"Authorization": "Bearer %s" % access_token}
