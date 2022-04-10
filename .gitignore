@@ -3,9 +3,7 @@ backend/secrets.py
 env
 .vscode
 .idea
-<<<<<<< HEAD
 *__pycache__
 mpesa/mpesa_config.py
-=======
-*__pycache__
->>>>>>> b2cd7bb96853e38e1da8f4a4abb5bc93d794e27c
+db.sqlite3
+mpesa/migrations

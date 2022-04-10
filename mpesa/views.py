@@ -23,8 +23,9 @@ def getAccessToken(request):
 
 
 def lipa_na_mpesa_online(request):
-    user=request.user
-    print(user)
+    user = request.user
+    phone = user.phone_number.split("+")[1]
+
     access_token = MpesaAccessToken.validated_mpesa_access_token
     api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
     headers = {"Authorization": "Bearer %s" % access_token}
@@ -34,9 +35,10 @@ def lipa_na_mpesa_online(request):
         "Timestamp": LipanaMpesaPpassword.lipa_time,
         "TransactionType": "CustomerPayBillOnline",
         "Amount": 1,
-        "PartyA": 254791381653,  # replace with your phone number to get stk push
+        # "PartyA": 254791381653,  # replace with your phone number to get stk push
+        "PartyA": phone,  # replace with your phone number to get stk push
         "PartyB": LipanaMpesaPpassword.Business_short_code,
-        "PhoneNumber": 254791381653,  # replace with your phone number to get stk push
+        "PhoneNumber": phone,  # replace with your phone number to get stk push
         "CallBackURL": "https://sandbox.safaricom.co.ke/mpesa/",
         "AccountReference": "Courier",
         "TransactionDesc": "Payment for shipment"
