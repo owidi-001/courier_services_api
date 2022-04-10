@@ -60,30 +60,30 @@ def getAccessToken(request):
     validated_mpesa_access_token = mpesa_access_token['access_token']
     return HttpResponse(validated_mpesa_access_token)
 
-@login_required
-def lipa_na_mpesa_online(request):
-    user = request.user
-    phone = user.phone_number.split("+")[1]
-    # phone=254791381653
-    access_token = MpesaAccessToken.validated_mpesa_access_token
-    api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-    headers = {"Authorization": "Bearer %s" % access_token}
-    request = {
-        "BusinessShortCode": LipanaMpesaPpassword.Business_short_code,
-        "Password": LipanaMpesaPpassword.decode_password,
-        "Timestamp": LipanaMpesaPpassword.lipa_time,
-        "TransactionType": "CustomerPayBillOnline",
-        "Amount": 1,
-        # "PartyA": 254791381653,  # replace with your phone number to get stk push
-        "PartyA": phone,  # replace with your phone number to get stk push
-        "PartyB": LipanaMpesaPpassword.Business_short_code,
-        "PhoneNumber": phone,  # replace with your phone number to get stk push
-        "CallBackURL": "https://sandbox.safaricom.co.ke/mpesa/",
-        "AccountReference": "Courier",
-        "TransactionDesc": "Payment for shipment"
-    }
-    response = requests.post(api_url, json=request, headers=headers)
-    return HttpResponse('success')
+# @login_required
+# def lipa_na_mpesa_online(request):
+#     user = request.user
+#     phone = user.phone_number.split("+")[1]
+#     # phone=254791381653
+#     access_token = MpesaAccessToken.validated_mpesa_access_token
+#     api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+#     headers = {"Authorization": "Bearer %s" % access_token}
+#     request = {
+#         "BusinessShortCode": LipanaMpesaPpassword.Business_short_code,
+#         "Password": LipanaMpesaPpassword.decode_password,
+#         "Timestamp": LipanaMpesaPpassword.lipa_time,
+#         "TransactionType": "CustomerPayBillOnline",
+#         "Amount": 1,
+#         # "PartyA": 254791381653,  # replace with your phone number to get stk push
+#         "PartyA": phone,  # replace with your phone number to get stk push
+#         "PartyB": LipanaMpesaPpassword.Business_short_code,
+#         "PhoneNumber": phone,  # replace with your phone number to get stk push
+#         "CallBackURL": "https://sandbox.safaricom.co.ke/mpesa/",
+#         "AccountReference": "Courier",
+#         "TransactionDesc": "Payment for shipment"
+#     }
+#     response = requests.post(api_url, json=request, headers=headers)
+#     return HttpResponse('success')
 
 
 @csrf_exempt
